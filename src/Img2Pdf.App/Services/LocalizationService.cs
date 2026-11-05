@@ -147,8 +147,10 @@ public class LocalizationService : INotifyPropertyChanged
             ["Language"] = "Language",
             
             // Actions
-            ["AddFiles"] = "Add images",
+            ["AddFiles"] = "Add files",
             ["AddFolder"] = "Add folder",
+            ["PasteImage"] = "Paste image (Ctrl+V)",
+            ["ExtractPdf"] = "Extract PDF pages",
             ["Rotate"] = "Rotate 90°",
             ["MoveUp"] = "Move up",
             ["MoveDown"] = "Move down",
@@ -173,8 +175,8 @@ public class LocalizationService : INotifyPropertyChanged
             ["Preset_DocScan"] = "Scan",
 
             // Empty drop area
-            ["DropAreaTitle"] = "Drag and drop images or folders here",
-            ["DropAreaSubtitle"] = "Supports JPG, JPEG, PNG, BMP, WebP, TIFF and PDF • 100% lossless original quality",
+            ["DropAreaTitle"] = "Drag and drop images, PDFs, or press Ctrl+V to paste",
+            ["DropAreaSubtitle"] = "Supports JPG, PNG, BMP, WebP, TIFF and PDF • 100% lossless original quality",
             ["ChooseFiles"] = "Select files...",
             ["ChooseFolder"] = "Select folder...",
 
@@ -194,6 +196,9 @@ public class LocalizationService : INotifyPropertyChanged
             ["PdfSinglePage"] = "1 page",
             ["PdfMultiPages"] = "{0} pages",
             ["PdfDocument"] = "PDF Document",
+            ["EstimatedPdfSize"] = "Est. PDF size: ~{0}",
+            ["ExtractingPdfPages"] = "Extracting PDF pages...",
+            ["PdfPagesExtracted"] = "Extracted {0} pages to folder!",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Conversion Mode",
@@ -241,6 +246,18 @@ public class LocalizationService : INotifyPropertyChanged
             ["EnableWatermark"] = "Add diagonal watermark",
             ["WatermarkTextLabel"] = "Watermark text:",
 
+            // Captions
+            ["Card_Captions"] = "Image Captions",
+            ["ShowCaptions"] = "Print filename / date below each image",
+
+            // Advanced & System
+            ["Card_AdvancedFeatures"] = "System & Searchable PDF",
+            ["EnableOcr"] = "Searchable PDF (Windows OCR)",
+            ["OcrDescription"] = "Embeds invisible text layer for selecting and searching text with Ctrl+F.",
+            ["EnableContextMenu"] = "Add to Windows Explorer right-click menu",
+            ["ContextMenuDescription"] = "Allows converting images and folders directly from Windows Explorer.",
+            ["ContextMenuTitle"] = "Convert to PDF with Img2Pdf",
+
             // Metadata
             ["Card_Metadata"] = "PDF Document Metadata",
             ["DocTitle"] = "Document Title:",
@@ -266,11 +283,11 @@ public class LocalizationService : INotifyPropertyChanged
             ["CancelConversion"] = "Cancel conversion",
 
             // Progress and summaries
-            ["NoImagesSelected"] = "No images selected",
-            ["ImagesCount"] = "{0} image{1} ({2})",
+            ["NoImagesSelected"] = "No files selected",
+            ["ImagesCount"] = "{0} file{1} ({2})",
             ["PluralSuffix"] = "s",
             ["ReadyToConvert"] = "Ready to convert",
-            ["ImagesReady"] = "{0} images ready",
+            ["ImagesReady"] = "{0} files ready",
             ["SearchingImages"] = "Scanning for files...",
             ["ErrorReadingFiles"] = "Error reading files: {0}",
             ["ConvertingProgress"] = "Converting {0} of {1}: {2}",
@@ -298,6 +315,8 @@ public class LocalizationService : INotifyPropertyChanged
             // Actions
             ["AddFiles"] = "Legg til filer",
             ["AddFolder"] = "Legg til mappe",
+            ["PasteImage"] = "Lim inn bilde (Ctrl+V)",
+            ["ExtractPdf"] = "Pakk ut PDF-sider",
             ["Rotate"] = "Roter 90°",
             ["MoveUp"] = "Flytt opp",
             ["MoveDown"] = "Flytt ned",
@@ -322,7 +341,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["Preset_DocScan"] = "Skanning",
 
             // Empty drop area
-            ["DropAreaTitle"] = "Dra og slipp bilder eller PDF-filer her",
+            ["DropAreaTitle"] = "Dra og slipp bilder, PDF-er eller trykk Ctrl+V",
             ["DropAreaSubtitle"] = "Støtter JPG, PNG, BMP, WebP, TIFF og PDF • 100 % tapsfri original kvalitet",
             ["ChooseFiles"] = "Velg filer...",
             ["ChooseFolder"] = "Velg mappe...",
@@ -343,6 +362,9 @@ public class LocalizationService : INotifyPropertyChanged
             ["PdfSinglePage"] = "1 side",
             ["PdfMultiPages"] = "{0} sider",
             ["PdfDocument"] = "PDF-dokument",
+            ["EstimatedPdfSize"] = "Estimert PDF-størrelse: ~{0}",
+            ["ExtractingPdfPages"] = "Pakker ut PDF-sider...",
+            ["PdfPagesExtracted"] = "Pakket ut {0} sider til mappe!",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Konverteringsmodus",
@@ -389,6 +411,18 @@ public class LocalizationService : INotifyPropertyChanged
             ["PageNumberFormatLabel"] = "Format:",
             ["EnableWatermark"] = "Legg til diagonalt vannmerke",
             ["WatermarkTextLabel"] = "Vannmerketekst:",
+
+            // Captions
+            ["Card_Captions"] = "Bildetekst",
+            ["ShowCaptions"] = "Vis filnavn / dato under hvert bilde",
+
+            // Advanced & System
+            ["Card_AdvancedFeatures"] = "System & Søkbar PDF",
+            ["EnableOcr"] = "Gjør PDF søkbar (Windows OCR)",
+            ["OcrDescription"] = "Legger inn usynlig tekstlag så du kan markere og søke i teksten med Ctrl+F.",
+            ["EnableContextMenu"] = "Integrer i Windows Utforsker høyreklikkmeny",
+            ["ContextMenuDescription"] = "Lar deg konvertere bilder og mapper direkte fra Windows Utforsker.",
+            ["ContextMenuTitle"] = "Konverter til PDF med Img2Pdf",
 
             // Metadata
             ["Card_Metadata"] = "PDF-dokumentmetadata",
@@ -447,6 +481,8 @@ public class LocalizationService : INotifyPropertyChanged
             // Actions
             ["AddFiles"] = "Dateien hinzufügen",
             ["AddFolder"] = "Ordner hinzufügen",
+            ["PasteImage"] = "Bild einfügen (Strg+V)",
+            ["ExtractPdf"] = "PDF-Seiten extrahieren",
             ["Rotate"] = "90° drehen",
             ["MoveUp"] = "Nach oben",
             ["MoveDown"] = "Nach unten",
@@ -471,7 +507,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["Preset_DocScan"] = "Scan",
 
             // Empty drop area
-            ["DropAreaTitle"] = "Bilder oder PDF-Dateien hierher ziehen",
+            ["DropAreaTitle"] = "Bilder, PDFs hierher ziehen oder Strg+V drücken",
             ["DropAreaSubtitle"] = "Unterstützt JPG, PNG, BMP, WebP, TIFF und PDF • 100% verlustfreie Originalqualität",
             ["ChooseFiles"] = "Dateien auswählen...",
             ["ChooseFolder"] = "Ordner auswählen...",
@@ -492,6 +528,9 @@ public class LocalizationService : INotifyPropertyChanged
             ["PdfSinglePage"] = "1 Seite",
             ["PdfMultiPages"] = "{0} Seiten",
             ["PdfDocument"] = "PDF-Dokument",
+            ["EstimatedPdfSize"] = "Geschätzte PDF-Größe: ~{0}",
+            ["ExtractingPdfPages"] = "PDF-Seiten werden extrahiert...",
+            ["PdfPagesExtracted"] = "{0} Seiten in Ordner extrahiert!",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Konvertierungsmodus",
@@ -538,6 +577,18 @@ public class LocalizationService : INotifyPropertyChanged
             ["PageNumberFormatLabel"] = "Format:",
             ["EnableWatermark"] = "Diagonales Wasserzeichen",
             ["WatermarkTextLabel"] = "Wasserzeichen-Text:",
+
+            // Captions
+            ["Card_Captions"] = "Bildbeschriftung",
+            ["ShowCaptions"] = "Dateiname / Datum unter jedem Bild drucken",
+
+            // Advanced & System
+            ["Card_AdvancedFeatures"] = "System & Durchsuchbare PDF",
+            ["EnableOcr"] = "Durchsuchbare PDF (Windows OCR)",
+            ["OcrDescription"] = "Bettet unsichtbare Textebene ein, um Text mit Strg+F zu durchsuchen.",
+            ["EnableContextMenu"] = "Zum Windows Explorer Kontextmenü hinzufügen",
+            ["ContextMenuDescription"] = "Ermöglicht das Konvertieren direkt aus dem Windows Explorer.",
+            ["ContextMenuTitle"] = "Mit Img2Pdf in PDF konvertieren",
 
             // Metadata
             ["Card_Metadata"] = "PDF-Dokument-Metadaten",
@@ -596,6 +647,8 @@ public class LocalizationService : INotifyPropertyChanged
             // Actions
             ["AddFiles"] = "Añadir archivos",
             ["AddFolder"] = "Añadir carpeta",
+            ["PasteImage"] = "Pegar imagen (Ctrl+V)",
+            ["ExtractPdf"] = "Extraer páginas PDF",
             ["Rotate"] = "Girar 90°",
             ["MoveUp"] = "Subir",
             ["MoveDown"] = "Bajar",
@@ -620,7 +673,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["Preset_DocScan"] = "Escaneo",
 
             // Empty drop area
-            ["DropAreaTitle"] = "Arrastra y suelta imágenes o archivos PDF aquí",
+            ["DropAreaTitle"] = "Arrastra imágenes, PDFs o pulsa Ctrl+V",
             ["DropAreaSubtitle"] = "Compatible con JPG, PNG, BMP, WebP, TIFF y PDF • Calidad original 100% sin pérdidas",
             ["ChooseFiles"] = "Seleccionar archivos...",
             ["ChooseFolder"] = "Seleccionar carpeta...",
@@ -641,6 +694,9 @@ public class LocalizationService : INotifyPropertyChanged
             ["PdfSinglePage"] = "1 página",
             ["PdfMultiPages"] = "{0} páginas",
             ["PdfDocument"] = "Documento PDF",
+            ["EstimatedPdfSize"] = "Tamaño est. PDF: ~{0}",
+            ["ExtractingPdfPages"] = "Extrayendo páginas PDF...",
+            ["PdfPagesExtracted"] = "¡{0} páginas extraídas a la carpeta!",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Modo de conversión",
@@ -687,6 +743,18 @@ public class LocalizationService : INotifyPropertyChanged
             ["PageNumberFormatLabel"] = "Formato:",
             ["EnableWatermark"] = "Marca de agua diagonal",
             ["WatermarkTextLabel"] = "Texto de marca de agua:",
+
+            // Captions
+            ["Card_Captions"] = "Subtítulo de imagen",
+            ["ShowCaptions"] = "Imprimir nombre de archivo / fecha debajo de cada imagen",
+
+            // Advanced & System
+            ["Card_AdvancedFeatures"] = "Sistema y PDF con búsqueda",
+            ["EnableOcr"] = "PDF con búsqueda (Windows OCR)",
+            ["OcrDescription"] = "Incrusta capa de texto invisible para seleccionar y buscar con Ctrl+F.",
+            ["EnableContextMenu"] = "Añadir al menú contextual de Windows",
+            ["ContextMenuDescription"] = "Permite convertir imágenes y carpetas directamente desde Windows.",
+            ["ContextMenuTitle"] = "Convertir a PDF con Img2Pdf",
 
             // Metadata
             ["Card_Metadata"] = "Metadatos del PDF",

@@ -19,6 +19,12 @@ public partial class ImageFileItem : ObservableObject
     public required string Directory { get; init; }
     public long FileSizeBytes { get; init; }
     public string FormattedSize => FormatBytes(FileSizeBytes);
+    public DateTime FileDate { get; init; } = DateTime.Now;
+
+    [ObservableProperty]
+    private DateTime? _dateTaken;
+
+    public string FormattedDate => (DateTaken ?? FileDate).ToString("yyyy-MM-dd");
 
     [ObservableProperty]
     private bool _isPdf;

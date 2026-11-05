@@ -19,6 +19,13 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
     public MainWindow()
     {
         InitializeComponent();
+        Loaded += async (_, _) =>
+        {
+            if (App.InitialFilesToLoad.Count > 0)
+            {
+                await ViewModel.AddPathsAsync(App.InitialFilesToLoad);
+            }
+        };
     }
 
     private async void OnWindowDrop(object sender, DragEventArgs e)
@@ -142,7 +149,7 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         }
     }
 
-    private void OnWindowKeyDown(object sender, KeyEventArgs e)
+    private async void OnWindowKeyDown(object sender, KeyEventArgs e)
     {
         if (FocusManager.GetFocusedElement(this) is TextBox)
         {
@@ -179,7 +186,12 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         }
         else
         {
-            if (e.Key == Key.Space && ViewModel.SelectedItem != null)
+            if (e.Key == Key.V && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                await ViewModel.PasteFromClipboardAsync();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Space && ViewModel.SelectedItem != null)
             {
                 ViewModel.OpenPreview();
                 e.Handled = true;

@@ -5,12 +5,29 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D4.svg)](https://microsoft.com/windows)
 [![.NET](https://img.shields.io/badge/.NET-10.0%20%7C%209.0%20%7C%208.0-512BD4.svg)](https://dotnet.microsoft.com/)
 
-A modern, fast, and lightweight Windows desktop application for lossless conversion of **JPG**, **PNG**, **BMP**, **WebP**, **TIFF** images and **PDF** documents into high-quality PDF files. Built with **.NET** and **WPF** featuring native **Windows 11 Fluent Design (Mica effect)**, dark mode, live thumbnail previews, drag-and-drop reordering, Quick Look preview overlay, multi-image grids (N-Up), document scan filters, page numbering, watermarks, quick presets, PDF metadata editing, and built-in multi-language localization.
+A modern, fast, and lightweight Windows desktop application for lossless conversion of **JPG**, **PNG**, **BMP**, **WebP**, **TIFF** images and **PDF** documents into high-quality PDF files. Built with **.NET** and **WPF** featuring native **Windows 11 Fluent Design (Mica effect)**, dark mode, clipboard paste (`Ctrl+V`), searchable PDF (Windows OCR), Windows Explorer context menu integration, real-time PDF size estimation, PDF page extraction, live thumbnail previews, drag-and-drop reordering, Quick Look preview overlay, multi-image grids (N-Up), document scan filters, page numbering, watermarks, quick presets, PDF metadata editing, and built-in multi-language localization.
 
 ---
 
-## ✨ Features (v1.3.0)
+## ✨ Features (v1.4.0)
 
+- 📋 **Clipboard Image Paste (`Ctrl + V`):**
+  - Instant paste: hit `Ctrl + V` or click "Paste image" to import screenshots directly from Snipping Tool (`Win + Shift + S`), browsers, or photo editors without saving to disk first.
+- 🔍 **Searchable PDF with Native Windows OCR:**
+  - Embeds an invisible text layer using the offline `Windows.Media.Ocr` engine. Enables text selection, copying, and `Ctrl + F` searching in any PDF reader.
+- 🖱️ **Windows Explorer Context Menu Integration:**
+  - Right-click images or entire folders in Windows Explorer and choose **"Convert to PDF with Img2Pdf"** to launch directly.
+- 📊 **Real-Time Output Size Calculator:**
+  - Instant live estimation of output PDF file size as you tweak quality, JPEG compression, and document filters.
+- 🏷️ **Image Captions (Filename & Date):**
+  - Print neat, clean captions (filename and/or EXIF capture date) below each image on the page.
+- 🔄 **PDF Page Extractor:**
+  - Split any multi-page PDF into single-page PDF files with a single click.
+- 💻 **Headless Command Line Interface (CLI):**
+  - Run silent batch conversions from scripts:
+    ```cmd
+    Img2Pdf.exe --input "C:\Photos\*.jpg" --output "C:\Output.pdf" --preset receipts --silent
+    ```
 - 🚀 **Broad Image & PDF Support:**
   - **JPG / JPEG:** Embedded directly into the PDF's `DCTDecode` stream without re-compression. Zero loss of sharpness, metadata, or color accuracy.
   - **PNG & BMP:** Losslessly compressed using `FlateDecode` (Deflate/ZIP) streams.
@@ -96,16 +113,16 @@ All native DirectX/WPF libraries (`wpfgfx_cor3.dll`, etc.) are bundled inside, a
 
 ---
 
-## 🇳🇴 Norsk Sammendrag (v1.3.0)
+## 🇳🇴 Norsk Sammendrag (v1.4.0)
 
-Img2Pdf er et raskt og moderne Windows-verktøy for å konvertere bilder (**JPG, PNG, BMP, WebP og TIFF**) og slå sammen eksisterende **PDF-filer**. Nyheter i versjon 1.3.0:
-- **Dokumentfiltre:** Velg mellom Originalfarger, Gråtoner eller Svart-hvitt dokumentskanning med høy kontrast (perfekt for tekst og kvitteringer).
-- **Sidetall & Vannmerke:** Legg til automatiske sidetall ("Side X av Y") og diagonalt vannmerke (f.eks. "DRAFT" eller "KOPI").
-- **Fletting av eksisterende PDF-er:** Dra inn både bilder og eksisterende PDF-dokumenter for å flette alt sammen til én komplett PDF.
-- **Hurtigprofiler (Presets):** Ett-klikks oppsett for Standard, Kvitteringer, Fotoalbum, Dokumentskanning og E-post.
-- **Beskjæring (Crop & Trim):** Juster marger og beskjær bilder direkte i Hurtigvisning (Quick Look) med forhåndsvisning i sanntid.
-- **Dra-og-slipp-sortering & Hurtigvisning:** Fullskjermvisning, piltastnavigasjon og enkel omrokkering av rader.
-- **4 språk:** Norsk (🇳🇴), Engelsk (🇬🇧), Tysk (🇩🇪) og Spansk (🇪🇸).
+Img2Pdf er et lynraskt og moderne Windows-verktøy for å konvertere bilder og slå sammen PDF-filer. Nyheter i versjon 1.4.0:
+- **Lim inn fra utklippstavlen (`Ctrl + V`):** Ta skjermbilde med `Win + Shift + S` og lim det rett inn i listen uten å lagre til disk først.
+- **Søkbar PDF med Windows OCR:** Legger til et usynlig tekstlag med Windows sin innebygde offline OCR, slik at tekst kan markeres, kopieres og søkes i (`Ctrl + F`).
+- **Windows Utforsker-integrasjon:** Høyreklikk på bilder eller mapper i Utforsker og velg "Konverter til PDF med Img2Pdf".
+- **Sanntids filstørrelse-kalkulator:** Se estimert filstørrelse på den ferdige PDF-en direkte mens du justerer innstillinger.
+- **Bildetekst:** Valgfritt filnavn og/eller EXIF-dato skrevet pent under hvert bilde på arket.
+- **Pakk ut PDF-sider:** Splitt flersidige PDF-dokumenter til separate sider med ett klikk.
+- **Kommandolinjestøtte (CLI):** Automatiser konverteringer med `--input`, `--output` og `--silent`.
 
 ---
 

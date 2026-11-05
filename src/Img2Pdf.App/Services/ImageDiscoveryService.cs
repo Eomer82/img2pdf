@@ -79,7 +79,8 @@ public class ImageDiscoveryService
                         FilePath = filePath,
                         FileName = fileInfo.Name,
                         Directory = fileInfo.DirectoryName ?? string.Empty,
-                        FileSizeBytes = fileInfo.Length
+                        FileSizeBytes = fileInfo.Length,
+                        FileDate = fileInfo.LastWriteTime
                     };
 
                     InspectMetadata(item);

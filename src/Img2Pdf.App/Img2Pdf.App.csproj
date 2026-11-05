@@ -3,14 +3,15 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <!-- Bytt til net9.0-windows eller net8.0-windows dersom din maskin ikke har .NET 10 SDK installert ennå -->
-    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <RootNamespace>Img2Pdf.App</RootNamespace>
     <AssemblyName>Img2Pdf</AssemblyName>
     <ApplicationTitle>Img2Pdf - Image to PDF Converter</ApplicationTitle>
-    <Version>1.3.0</Version>
+    <Version>1.4.0</Version>
     <Company>Img2Pdf</Company>
     <Description>Modern, fast, and lightweight batch image-to-PDF converter for Windows.</Description>
 

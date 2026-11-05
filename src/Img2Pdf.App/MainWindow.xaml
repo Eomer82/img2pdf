@@ -10,7 +10,7 @@
         xmlns:loc="clr-namespace:Img2Pdf.App.Services"
         mc:Ignorable="d"
         Title="{loc:Translate AppTitle}"
-        Height="820" Width="1160"
+        Height="840" Width="1180"
         MinHeight="660" MinWidth="920"
         WindowStartupLocation="CenterScreen"
         ExtendsContentIntoTitleBar="True"
@@ -92,6 +92,15 @@
                                Icon="{ui:SymbolIcon FolderAdd24}"
                                Click="OnAddFolderClicked"
                                Margin="0,0,8,6" />
+                    <ui:Button Content="{loc:Translate PasteImage}"
+                               Icon="{ui:SymbolIcon ClipboardPaste24}"
+                               Command="{Binding PasteFromClipboardCommand}"
+                               Margin="0,0,8,6" />
+                    <ui:Button Content="{loc:Translate ExtractPdf}"
+                               Icon="{ui:SymbolIcon DocumentArrowRight24}"
+                               Command="{Binding ExtractPdfPagesCommand}"
+                               IsEnabled="{Binding IsSelectedPdf}"
+                               Margin="0,0,8,6" />
                     <ui:Button Content="{loc:Translate QuickLook}"
                                Icon="{ui:SymbolIcon Eye24}"
                                Command="{Binding OpenPreviewCommand}"
@@ -143,7 +152,8 @@
                                    Margin="0,0,0,18" />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <ui:Button Content="{loc:Translate ChooseFiles}" Click="OnAddFilesClicked" Margin="0,0,10,0" />
-                            <ui:Button Content="{loc:Translate ChooseFolder}" Click="OnAddFolderClicked" />
+                            <ui:Button Content="{loc:Translate ChooseFolder}" Click="OnAddFolderClicked" Margin="0,0,10,0" />
+                            <ui:Button Content="{loc:Translate PasteImage}" Command="{Binding PasteFromClipboardCommand}" />
                         </StackPanel>
                     </StackPanel>
                 </ui:Card>
@@ -316,7 +326,7 @@
                     </ListView>
                 </ui:Card>
 
-                <!-- Bunnlinje: Status og Fremgang -->
+                <!-- Bunnlinje: Status, Estimat og Fremgang -->
                 <Grid Grid.Row="2" Margin="0,12,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -324,10 +334,18 @@
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0" Margin="0,0,0,6">
-                        <TextBlock Text="{Binding StatusSummary}" 
-                                   FontWeight="SemiBold" 
-                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}"
-                                   VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding StatusSummary}" 
+                                       FontWeight="SemiBold" 
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       VerticalAlignment="Center" 
+                                       Margin="0,0,14,0" />
+                            <TextBlock Text="{Binding EstimatedOutputSize}" 
+                                       FontSize="12"
+                                       Foreground="#4CC2FF"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
                         <TextBlock Text="{Binding ProgressText}" 
                                    HorizontalAlignment="Right" 
                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
@@ -505,6 +523,44 @@
                                 <TextBlock Text="{loc:Translate WatermarkTextLabel}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" Margin="0,0,0,2" />
                                 <TextBox Text="{Binding WatermarkText, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
+                        </StackPanel>
+                    </ui:Card>
+
+                    <!-- Kort: Bildetekst -->
+                    <ui:Card Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Translate Card_Captions}" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
+                            <CheckBox Content="{loc:Translate ShowCaptions}"
+                                      IsChecked="{Binding ShowCaptions, Mode=TwoWay}"
+                                      Margin="0,0,0,4" />
+                        </StackPanel>
+                    </ui:Card>
+
+                    <!-- Kort: System & Søkbar PDF -->
+                    <ui:Card Margin="0,0,0,12">
+                        <StackPanel>
+                            <TextBlock Text="{loc:Translate Card_AdvancedFeatures}" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
+
+                            <!-- Søkbar PDF (OCR) -->
+                            <CheckBox Content="{loc:Translate EnableOcr}"
+                                      IsChecked="{Binding EnableOcr, Mode=TwoWay}"
+                                      IsEnabled="{Binding IsOcrSupported}"
+                                      Margin="0,0,0,4" />
+                            <TextBlock Text="{loc:Translate OcrDescription}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                       Margin="24,0,0,8"
+                                       TextWrapping="Wrap" />
+
+                            <!-- Høyreklikkmeny -->
+                            <CheckBox Content="{loc:Translate EnableContextMenu}"
+                                      IsChecked="{Binding EnableContextMenuIntegration, Mode=TwoWay}"
+                                      Margin="0,0,0,4" />
+                            <TextBlock Text="{loc:Translate ContextMenuDescription}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                       Margin="24,0,0,0"
+                                       TextWrapping="Wrap" />
                         </StackPanel>
                     </ui:Card>
 
@@ -732,7 +788,7 @@
 
             <!-- Hjelpetekst i bunnen -->
             <Border Grid.Row="2" Background="#11FFFFFF" Padding="12,8">
-                <TextBlock Text="Tip: Space or Esc to close • Left/Right arrows to flip • R to rotate"
+                <TextBlock Text="Tip: Space or Esc to close • Left/Right arrows to flip • R to rotate • C to crop"
                            HorizontalAlignment="Center"
                            FontSize="12"
                            Foreground="#88FFFFFF" />

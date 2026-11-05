@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -18,9 +19,11 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelectedItem))]
+    [NotifyPropertyChangedFor(nameof(IsSelectedPdf))]
     private ImageFileItem? _selectedItem;
 
     public bool HasSelectedItem => SelectedItem != null;
+    public bool IsSelectedPdf => SelectedItem?.IsPdf == true;
 
     // Full-Size Preview (Quick Look)
     [ObservableProperty]
@@ -135,6 +138,8 @@ public partial class MainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsBlackAndWhiteFilter))]
     private ImageFilterMode _filterMode = ImageFilterMode.Original;
 
+    partial void OnFilterModeChanged(ImageFilterMode value) => UpdateStatusSummary();
+
     public bool IsOriginalFilter
     {
         get => FilterMode == ImageFilterMode.Original;
@@ -158,6 +163,8 @@ public partial class MainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsCompressedQuality))]
     private QualityMode _qualityMode = QualityMode.Lossless;
 
+    partial void OnQualityModeChanged(QualityMode value) => UpdateStatusSummary();
+
     public bool IsLosslessQuality
     {
         get => QualityMode == QualityMode.Lossless;
@@ -178,6 +185,8 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private int _jpegQuality = 80;
+
+    partial void OnJpegQualityChanged(int value) => UpdateStatusSummary();
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsMarginNone))]
@@ -259,6 +268,28 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _watermarkText = "DRAFT";
 
+    // Bildetekst / Captions (Filnavn & Dato)
+    [ObservableProperty]
+    private bool _showCaptions;
+
+    [ObservableProperty]
+    private CaptionMode _captionMode = CaptionMode.FileName;
+
+    // Søkbar PDF (Windows OCR)
+    [ObservableProperty]
+    private bool _enableOcr;
+
+    public bool IsOcrSupported => OcrService.IsSupported;
+
+    // Windows Explorer Høyreklikkmeny
+    [ObservableProperty]
+    private bool _enableContextMenuIntegration;
+
+    partial void OnEnableContextMenuIntegrationChanged(bool value)
+    {
+        ShellIntegrationService.SetContextMenuRegistered(value);
+    }
+
     // PDF Document Metadata
     [ObservableProperty]
     private string _documentTitle = string.Empty;
@@ -285,6 +316,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _statusSummary;
 
+    [ObservableProperty]
+    private string _estimatedOutputSize = string.Empty;
+
     public bool CanConvert => Files.Count > 0 && !IsBusy;
 
     public MainViewModel()
@@ -292,6 +326,7 @@ public partial class MainViewModel : ObservableObject
         _mergedFileName = LocalizationService.GetString("DefaultMergedFileName");
         _progressText = LocalizationService.GetString("ReadyToConvert");
         _statusSummary = LocalizationService.GetString("NoImagesSelected");
+        _enableContextMenuIntegration = ShellIntegrationService.IsContextMenuRegistered();
 
         LocalizationService.Instance.LanguageChanged += (_, _) =>
         {
@@ -337,11 +372,58 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    public async Task PasteFromClipboardAsync()
+    {
+        if (Clipboard.ContainsImage())
+        {
+            var image = Clipboard.GetImage();
+            if (image != null)
+            {
+                string tempFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Img2Pdf", "Temp");
+                Directory.CreateDirectory(tempFolder);
+                string tempPath = Path.Combine(tempFolder, $"Pasted_Image_{DateTime.Now:yyyyMMdd_HHmmss}.png");
+                using (var fileStream = new FileStream(tempPath, FileMode.Create))
+                {
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(image));
+                    encoder.Save(fileStream);
+                }
+                await AddPathsAsync(new[] { tempPath });
+            }
+        }
+    }
+
+    [RelayCommand]
+    public async Task ExtractPdfPagesAsync(ImageFileItem? item = null)
+    {
+        var target = item ?? SelectedItem;
+        if (target != null && target.IsPdf)
+        {
+            string outputFolder = Path.Combine(target.Directory, $"{Path.GetFileNameWithoutExtension(target.FilePath)}_Sider");
+            ProgressText = LocalizationService.GetString("ExtractingPdfPages");
+            try
+            {
+                var files = await PdfConversionService.ExtractPdfPagesAsync(target.FilePath, outputFolder);
+                ProgressText = LocalizationService.GetString("PdfPagesExtracted", files.Count);
+                if (Directory.Exists(outputFolder))
+                {
+                    Process.Start(new ProcessStartInfo { FileName = outputFolder, UseShellExecute = true });
+                }
+            }
+            catch (Exception ex)
+            {
+                ProgressText = LocalizationService.GetString("ConversionFailed", ex.Message);
+            }
+        }
+    }
+
     private void UpdateStatusSummary()
     {
         if (Files.Count == 0)
         {
             StatusSummary = LocalizationService.GetString("NoImagesSelected");
+            EstimatedOutputSize = string.Empty;
             return;
         }
 
@@ -350,6 +432,24 @@ public partial class MainViewModel : ObservableObject
         string plural = Files.Count > 1 ? LocalizationService.GetString("PluralSuffix") : string.Empty;
 
         StatusSummary = LocalizationService.GetString("ImagesCount", Files.Count, plural, totalSize);
+
+        // Calculate estimated PDF size
+        long estimatedBytes;
+        if (FilterMode == ImageFilterMode.BlackAndWhite)
+        {
+            estimatedBytes = Math.Max(25_000, Files.Count * 95_000L);
+        }
+        else if (QualityMode == QualityMode.Compressed)
+        {
+            double factor = (JpegQuality / 100.0) * 0.38;
+            estimatedBytes = (long)(totalBytes * factor);
+        }
+        else
+        {
+            estimatedBytes = (long)(totalBytes * 1.02);
+        }
+
+        EstimatedOutputSize = LocalizationService.GetString("EstimatedPdfSize", ImageFileItem.FormatBytes(estimatedBytes));
     }
 
     [RelayCommand]
@@ -609,6 +709,9 @@ public partial class MainViewModel : ObservableObject
             PageNumberFormat = PageNumberFormat,
             EnableWatermark = EnableWatermark,
             WatermarkText = WatermarkText,
+            ShowCaptions = ShowCaptions,
+            CaptionMode = CaptionMode,
+            EnableOcr = EnableOcr,
             DocumentTitle = DocumentTitle,
             DocumentAuthor = DocumentAuthor,
             DocumentSubject = DocumentSubject

@@ -47,6 +47,13 @@ public enum PageNumberPosition
     BottomLeft
 }
 
+public enum CaptionMode
+{
+    FileName,
+    DateTaken,
+    FileNameAndDate
+}
+
 public class ConversionSettings
 {
     public OutputMode OutputMode { get; set; } = OutputMode.IndividualPdfs;
@@ -70,6 +77,13 @@ public class ConversionSettings
     public PageNumberPosition PageNumberPosition { get; set; } = PageNumberPosition.BottomCenter;
     public bool EnableWatermark { get; set; } = false;
     public string WatermarkText { get; set; } = "DRAFT";
+
+    // Captions (Filnavn & Dato)
+    public bool ShowCaptions { get; set; } = false;
+    public CaptionMode CaptionMode { get; set; } = CaptionMode.FileName;
+
+    // Searchable PDF (Windows OCR)
+    public bool EnableOcr { get; set; } = false;
 
     // PDF Metadata
     public string? DocumentTitle { get; set; }

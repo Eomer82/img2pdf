@@ -291,6 +291,14 @@ public class PdfConversionService
             double drawX = (page.Width.Point - xImage.PointWidth) / 2.0;
             double drawY = (page.Height.Point - xImage.PointHeight) / 2.0;
             gfx.DrawImage(xImage, drawX, drawY);
+
+            // OCR in 1:1 mode
+            if (settings.EnableOcr)
+            {
+                var words = OcrService.RecognizeWordsAsync(item.FilePath).GetAwaiter().GetResult();
+                DrawOcrTextLayer(gfx, words, xImage.PixelWidth, xImage.PixelHeight, drawX, drawY, xImage.PointWidth, xImage.PointHeight);
+            }
+
             gfx.Restore(state);
             return;
         }
@@ -315,7 +323,6 @@ public class PdfConversionService
         }
         else
         {
-            // For 2 images, landscape or portrait depending on layout; portrait is default standard
             multiPage.Orientation = PageOrientation.Portrait;
         }
 
@@ -339,7 +346,7 @@ public class PdfConversionService
                 var xImage = LoadImage(item, settings, disposables);
                 var slot = slots[i];
 
-                DrawImageInSlot(gfx, xImage, item.TotalRotation, slot.X, slot.Y, slot.Width, slot.Height);
+                DrawImageInSlot(gfx, xImage, item, settings, slot.X, slot.Y, slot.Width, slot.Height);
             }
         }
     }
@@ -394,27 +401,32 @@ public class PdfConversionService
     private static void DrawImageInSlot(
         XGraphics gfx,
         XImage xImage,
-        int rot,
+        ImageFileItem item,
+        ConversionSettings settings,
         double slotX,
         double slotY,
         double slotW,
         double slotH)
     {
+        int rot = item.TotalRotation;
         double effW = (rot == 90 || rot == 270) ? xImage.PixelHeight : xImage.PixelWidth;
         double effH = (rot == 90 || rot == 270) ? xImage.PixelWidth : xImage.PixelHeight;
+
+        double reservedBottom = settings.ShowCaptions ? 18.0 : 0.0;
+        double usableSlotH = Math.Max(10.0, slotH - reservedBottom);
 
         double ratio = effW / effH;
         double targetW = slotW;
         double targetH = targetW / ratio;
 
-        if (targetH > slotH)
+        if (targetH > usableSlotH)
         {
-            targetH = slotH;
+            targetH = usableSlotH;
             targetW = targetH * ratio;
         }
 
         double cx = slotX + (slotW / 2.0);
-        double cy = slotY + (slotH / 2.0);
+        double cy = slotY + (usableSlotH / 2.0);
 
         double drawW = (rot == 90 || rot == 270) ? targetH : targetW;
         double drawH = (rot == 90 || rot == 270) ? targetW : targetH;
@@ -428,7 +440,65 @@ public class PdfConversionService
             gfx.RotateAtTransform(rot, new XPoint(cx, cy));
         }
         gfx.DrawImage(xImage, drawX, drawY, drawW, drawH);
+
+        // OCR searchable text layer
+        if (settings.EnableOcr)
+        {
+            var words = OcrService.RecognizeWordsAsync(item.FilePath).GetAwaiter().GetResult();
+            DrawOcrTextLayer(gfx, words, xImage.PixelWidth, xImage.PixelHeight, drawX, drawY, drawW, drawH);
+        }
+
         gfx.Restore(state);
+
+        // Captions
+        if (settings.ShowCaptions)
+        {
+            string caption = settings.CaptionMode switch
+            {
+                CaptionMode.DateTaken => item.FormattedDate,
+                CaptionMode.FileNameAndDate => $"{item.FileName} • {item.FormattedDate}",
+                _ => item.FileName
+            };
+
+            var captionFont = new XFont("Segoe UI", 8.5, XFontStyleEx.Regular);
+            var captionBrush = new XSolidBrush(XColor.FromArgb(160, 70, 70, 70));
+            var size = gfx.MeasureString(caption, captionFont);
+            double capX = cx - (size.Width / 2.0);
+            double capY = slotY + slotH - 4.0;
+            gfx.DrawString(caption, captionFont, captionBrush, capX, capY);
+        }
+    }
+
+    private static void DrawOcrTextLayer(
+        XGraphics gfx,
+        IReadOnlyList<OcrWordBox> words,
+        int pixelWidth,
+        int pixelHeight,
+        double drawX,
+        double drawY,
+        double drawW,
+        double drawH)
+    {
+        if (words == null || words.Count == 0 || pixelWidth <= 0 || pixelHeight <= 0) return;
+
+        double scaleX = drawW / (double)pixelWidth;
+        double scaleY = drawH / (double)pixelHeight;
+        var transparentBrush = new XSolidBrush(XColor.FromArgb(0, 0, 0, 0));
+
+        foreach (var word in words)
+        {
+            if (string.IsNullOrWhiteSpace(word.Text)) continue;
+
+            double wx = drawX + (word.X * scaleX);
+            double wy = drawY + (word.Y * scaleY);
+            double ww = word.Width * scaleX;
+            double wh = word.Height * scaleY;
+
+            double fontSize = Math.Max(4.0, wh * 0.85);
+            var font = new XFont("Segoe UI", fontSize, XFontStyleEx.Regular);
+
+            gfx.DrawString(word.Text, font, transparentBrush, wx, wy + (wh * 0.85));
+        }
     }
 
     private static XImage LoadImage(ImageFileItem item, ConversionSettings settings, List<IDisposable> disposables)
@@ -572,6 +642,30 @@ public class PdfConversionService
                 gfx.DrawString(text, font, brush, x, y);
             }
         }
+    }
+
+    public static async Task<List<string>> ExtractPdfPagesAsync(string pdfPath, string outputFolder, CancellationToken cancellationToken = default)
+    {
+        var extractedFiles = new List<string>();
+        Directory.CreateDirectory(outputFolder);
+
+        await Task.Run(() =>
+        {
+            using var inputDoc = PdfReader.Open(pdfPath, PdfDocumentOpenMode.Import);
+            string baseName = Path.GetFileNameWithoutExtension(pdfPath);
+
+            for (int i = 0; i < inputDoc.Pages.Count; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                using var singlePageDoc = new PdfDocument();
+                singlePageDoc.AddPage(inputDoc.Pages[i]);
+                string singlePagePath = Path.Combine(outputFolder, $"{baseName}_side_{i + 1}.pdf");
+                singlePageDoc.Save(singlePagePath);
+                extractedFiles.Add(singlePagePath);
+            }
+        }, cancellationToken);
+
+        return extractedFiles;
     }
 
     private static void ApplyMetadata(PdfDocument document, ConversionSettings settings)
