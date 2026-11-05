@@ -1,16 +1,21 @@
-# Img2Pdf — High-Quality Image to PDF Converter
+<div align="center">
+  <img src="assets/icon.png" width="128" height="128" alt="Img2Pdf Logo" />
+  <h1>Img2Pdf — High-Quality Image to PDF Converter</h1>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/Eomer82/img2pdf)](https://github.com/Eomer82/img2pdf/releases/latest)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D4.svg)](https://microsoft.com/windows)
 [![.NET](https://img.shields.io/badge/.NET-10.0%20%7C%209.0%20%7C%208.0-512BD4.svg)](https://dotnet.microsoft.com/)
+</div>
 
 A modern, fast, and lightweight Windows desktop application for lossless conversion of **JPG**, **PNG**, **BMP**, **WebP**, **TIFF** images and **PDF** documents into high-quality PDF files. Built with **.NET** and **WPF** featuring native **Windows 11 Fluent Design (Mica effect)**, dark mode, clipboard paste (`Ctrl+V`), searchable PDF (Windows OCR), Windows Explorer context menu integration, real-time PDF size estimation, PDF page extraction, live thumbnail previews, drag-and-drop reordering, Quick Look preview overlay, multi-image grids (N-Up), document scan filters, page numbering, watermarks, quick presets, PDF metadata editing, and built-in multi-language localization.
 
 ---
 
-## ✨ Features (v1.4.2)
+## ✨ Features (v1.5.0)
 
+- 🎨 **Official Windows 11 Fluent App Icon:**
+  - Modern, high-resolution 3D acrylic squircle icon embedded directly into the executable binary (`Img2Pdf.exe`), window title bar, and Windows Explorer context menu.
 - 🌐 **Full Dynamic Live Localization:**
   - Status messages (such as "Ready to convert", "Scanning files...", elapsed time, etc.) now instantly and dynamically update when switching languages.
 - 📌 **Pinned Sticky Action Bar:**
@@ -117,9 +122,10 @@ All native DirectX/WPF libraries (`wpfgfx_cor3.dll`, etc.) are bundled inside, a
 
 ---
 
-## 🇳🇴 Norsk Sammendrag (v1.4.2)
+## 🇳🇴 Norsk Sammendrag (v1.5.0)
 
-Img2Pdf er et lynraskt og moderne Windows-verktøy for å konvertere bilder og slå sammen PDF-filer. Nyheter i versjon 1.4.2:
+Img2Pdf er et lynraskt og moderne Windows-verktøy for å konvertere bilder og slå sammen PDF-filer. Nyheter i versjon 1.5.0:
+- **Offisielt Windows 11 Fluent App-ikon:** Profesjonelt 3D-akrylikon bakt direkte inn i `Img2Pdf.exe`, oppgavelinjen, tittelbaren og i høyreklikkmenyen i Windows Utforsker.
 - **Full dynamisk språkoppdatering:** Statusbeskjeder i bunnlinjen («Klar til å konvertere», antall filer, fremdriftsmeldinger) og modale verktøytips oppdaterer seg nå øyeblikkelig når man bytter språk.
 - **Fastlåst Start-knapp (Sticky Footer):** Start/Avbryt-knappen er permanent festet i bunnen av høyrepanel slik at den alltid er umiddelbart tilgjengelig uten å måtte scrolle forbi innstillingene.
 - **Lim inn fra utklippstavlen (`Ctrl + V`):** Ta skjermbilde med `Win + Shift + S` og lim det rett inn i listen uten å lagre til disk først.

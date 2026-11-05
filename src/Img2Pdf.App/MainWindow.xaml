@@ -10,6 +10,7 @@
         xmlns:loc="clr-namespace:Img2Pdf.App.Services"
         mc:Ignorable="d"
         Title="{loc:Translate AppTitle}"
+        Icon="Assets/app.ico"
         Height="840" Width="1180"
         MinHeight="660" MinWidth="920"
         WindowStartupLocation="CenterScreen"
