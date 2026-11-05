@@ -755,7 +755,7 @@
                            Appearance="Secondary"
                            Padding="12,18"
                            Margin="8,0,0,0"
-                           ToolTip="Previous (Left Arrow)">
+                           ToolTip="{loc:Translate ToolTip_Previous}">
                     <ui:SymbolIcon Symbol="ChevronLeft24" FontSize="24" />
                 </ui:Button>
 
@@ -789,14 +789,14 @@
                            Appearance="Secondary"
                            Padding="12,18"
                            Margin="0,0,8,0"
-                           ToolTip="Next (Right Arrow)">
+                           ToolTip="{loc:Translate ToolTip_Next}">
                     <ui:SymbolIcon Symbol="ChevronRight24" FontSize="24" />
                 </ui:Button>
             </Grid>
 
             <!-- Hjelpetekst i bunnen -->
             <Border Grid.Row="2" Background="#11FFFFFF" Padding="12,8">
-                <TextBlock Text="Tip: Space or Esc to close • Left/Right arrows to flip • R to rotate • C to crop"
+                <TextBlock Text="{loc:Translate QuickLookTip}"
                            HorizontalAlignment="Center"
                            FontSize="12"
                            Foreground="#88FFFFFF" />

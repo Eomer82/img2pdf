@@ -97,7 +97,7 @@ public partial class ImageFileItem : ObservableObject
     public void RefreshLocalization()
     {
         OnPropertyChanged(nameof(StatusDisplay));
-        if (Dimensions == "Ukjent" || Dimensions == "Unknown")
+        if (Dimensions == "Ukjent" || Dimensions == "Unknown" || Dimensions == "Unbekannt" || Dimensions == "Desconocido")
         {
             Dimensions = LocalizationService.GetString("Dimensions_Unknown");
         }

@@ -319,6 +319,16 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _estimatedOutputSize = string.Empty;
 
+    private string _currentProgressKey = "ReadyToConvert";
+    private object[] _currentProgressArgs = Array.Empty<object>();
+
+    private void SetProgressStatus(string key, params object[] args)
+    {
+        _currentProgressKey = key;
+        _currentProgressArgs = args;
+        ProgressText = LocalizationService.GetString(key, args);
+    }
+
     public bool CanConvert => Files.Count > 0 && !IsBusy;
 
     public MainViewModel()
@@ -330,9 +340,9 @@ public partial class MainViewModel : ObservableObject
 
         LocalizationService.Instance.LanguageChanged += (_, _) =>
         {
-            OnPropertyChanged(nameof(StatusSummary));
-            OnPropertyChanged(nameof(ProgressText));
             UpdateStatusSummary();
+            ProgressText = LocalizationService.GetString(_currentProgressKey, _currentProgressArgs);
+            UpdateMergedFileNameOnLanguageChange();
             foreach (var file in Files)
             {
                 file.RefreshLocalization();
@@ -340,10 +350,26 @@ public partial class MainViewModel : ObservableObject
         };
     }
 
+    private void UpdateMergedFileNameOnLanguageChange()
+    {
+        var defaultNames = new[]
+        {
+            "Images_Merged.pdf",
+            "Bilder_Samlet.pdf",
+            "Bilder_Zusammengefuehrt.pdf",
+            "Imagenes_Combinadas.pdf"
+        };
+
+        if (string.IsNullOrWhiteSpace(MergedFileName) || defaultNames.Contains(MergedFileName))
+        {
+            MergedFileName = LocalizationService.GetString("DefaultMergedFileName");
+        }
+    }
+
     public async Task AddPathsAsync(IEnumerable<string> paths)
     {
         IsBusy = true;
-        ProgressText = LocalizationService.GetString("SearchingImages");
+        SetProgressStatus("SearchingImages");
 
         try
         {
@@ -360,11 +386,11 @@ public partial class MainViewModel : ObservableObject
 
             HasFiles = Files.Count > 0;
             UpdateStatusSummary();
-            ProgressText = LocalizationService.GetString("ImagesReady", Files.Count);
+            SetProgressStatus("ImagesReady", Files.Count);
         }
         catch (Exception ex)
         {
-            ProgressText = LocalizationService.GetString("ErrorReadingFiles", ex.Message);
+            SetProgressStatus("ErrorReadingFiles", ex.Message);
         }
         finally
         {
@@ -401,11 +427,11 @@ public partial class MainViewModel : ObservableObject
         if (target != null && target.IsPdf)
         {
             string outputFolder = Path.Combine(target.Directory, $"{Path.GetFileNameWithoutExtension(target.FilePath)}_Sider");
-            ProgressText = LocalizationService.GetString("ExtractingPdfPages");
+            SetProgressStatus("ExtractingPdfPages");
             try
             {
                 var files = await PdfConversionService.ExtractPdfPagesAsync(target.FilePath, outputFolder);
-                ProgressText = LocalizationService.GetString("PdfPagesExtracted", files.Count);
+                SetProgressStatus("PdfPagesExtracted", files.Count);
                 if (Directory.Exists(outputFolder))
                 {
                     Process.Start(new ProcessStartInfo { FileName = outputFolder, UseShellExecute = true });
@@ -413,7 +439,7 @@ public partial class MainViewModel : ObservableObject
             }
             catch (Exception ex)
             {
-                ProgressText = LocalizationService.GetString("ConversionFailed", ex.Message);
+                SetProgressStatus("ConversionFailed", ex.Message);
             }
         }
     }
@@ -461,6 +487,14 @@ public partial class MainViewModel : ObservableObject
             SelectedItem = Files.FirstOrDefault();
             HasFiles = Files.Count > 0;
             UpdateStatusSummary();
+            if (Files.Count == 0)
+            {
+                SetProgressStatus("ReadyToConvert");
+            }
+            else
+            {
+                SetProgressStatus("ImagesReady", Files.Count);
+            }
         }
     }
 
@@ -624,7 +658,7 @@ public partial class MainViewModel : ObservableObject
         SelectedItem = null;
         HasFiles = false;
         ProgressValue = 0;
-        ProgressText = LocalizationService.GetString("ReadyToConvert");
+        SetProgressStatus("ReadyToConvert");
         UpdateStatusSummary();
     }
 
@@ -726,7 +760,7 @@ public partial class MainViewModel : ObservableObject
         var progress = new Progress<ConversionProgressReport>(report =>
         {
             ProgressValue = report.Percentage;
-            ProgressText = LocalizationService.GetString("ConvertingProgress", report.CurrentIndex, report.TotalCount, report.CurrentFile);
+            SetProgressStatus("ConvertingProgress", report.CurrentIndex, report.TotalCount, report.CurrentFile);
         });
 
         string targetFolder = settings.UseCustomOutputFolder && !string.IsNullOrWhiteSpace(settings.CustomOutputFolder)
@@ -744,7 +778,7 @@ public partial class MainViewModel : ObservableObject
             stopwatch.Stop();
 
             ProgressValue = 100;
-            ProgressText = LocalizationService.GetString("CompletedInSeconds", stopwatch.Elapsed.TotalSeconds);
+            SetProgressStatus("CompletedInSeconds", stopwatch.Elapsed.TotalSeconds);
 
             if (settings.OpenPdfWhenDone && File.Exists(primaryPdfFile))
             {
@@ -765,11 +799,11 @@ public partial class MainViewModel : ObservableObject
         }
         catch (OperationCanceledException)
         {
-            ProgressText = LocalizationService.GetString("ConversionCancelled");
+            SetProgressStatus("ConversionCancelled");
         }
         catch (Exception ex)
         {
-            ProgressText = LocalizationService.GetString("ConversionFailed", ex.Message);
+            SetProgressStatus("ConversionFailed", ex.Message);
         }
         finally
         {

@@ -11,7 +11,7 @@
     <RootNamespace>Img2Pdf.App</RootNamespace>
     <AssemblyName>Img2Pdf</AssemblyName>
     <ApplicationTitle>Img2Pdf - Image to PDF Converter</ApplicationTitle>
-    <Version>1.4.1</Version>
+    <Version>1.4.2</Version>
     <Company>Img2Pdf</Company>
     <Description>Modern, fast, and lightweight batch image-to-PDF converter for Windows.</Description>
 
