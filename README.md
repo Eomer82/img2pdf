@@ -9,8 +9,10 @@ A modern, fast, and lightweight Windows desktop application for lossless convers
 
 ---
 
-## ✨ Features (v1.4.0)
+## ✨ Features (v1.4.1)
 
+- 📌 **Pinned Sticky Action Bar:**
+  - The primary **Start / Cancel Conversion** button is permanently pinned at the bottom of the right panel, never scrolling away regardless of settings navigation.
 - 📋 **Clipboard Image Paste (`Ctrl + V`):**
   - Instant paste: hit `Ctrl + V` or click "Paste image" to import screenshots directly from Snipping Tool (`Win + Shift + S`), browsers, or photo editors without saving to disk first.
 - 🔍 **Searchable PDF with Native Windows OCR:**
@@ -113,9 +115,10 @@ All native DirectX/WPF libraries (`wpfgfx_cor3.dll`, etc.) are bundled inside, a
 
 ---
 
-## 🇳🇴 Norsk Sammendrag (v1.4.0)
+## 🇳🇴 Norsk Sammendrag (v1.4.1)
 
-Img2Pdf er et lynraskt og moderne Windows-verktøy for å konvertere bilder og slå sammen PDF-filer. Nyheter i versjon 1.4.0:
+Img2Pdf er et lynraskt og moderne Windows-verktøy for å konvertere bilder og slå sammen PDF-filer. Nyheter i versjon 1.4.1:
+- **Fastlåst Start-knapp (Sticky Footer):** Start/Avbryt-knappen er nå permanent festet i bunnen av høyrepanel slik at den alltid er umiddelbart tilgjengelig uten å måtte scrolle forbi innstillingene.
 - **Lim inn fra utklippstavlen (`Ctrl + V`):** Ta skjermbilde med `Win + Shift + S` og lim det rett inn i listen uten å lagre til disk først.
 - **Søkbar PDF med Windows OCR:** Legger til et usynlig tekstlag med Windows sin innebygde offline OCR, slik at tekst kan markeres, kopieres og søkes i (`Ctrl + F`).
 - **Windows Utforsker-integrasjon:** Høyreklikk på bilder eller mapper i Utforsker og velg "Konverter til PDF med Img2Pdf".

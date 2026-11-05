@@ -361,8 +361,14 @@
             </Grid>
 
             <!-- HØYRE: Innstillinger og Konverteringsknapp -->
-            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
-                <StackPanel>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,0,6,0">
 
                     <!-- Kort: Hurtigprofiler (Presets) -->
                     <ui:Card Margin="0,0,0,12">
@@ -632,35 +638,37 @@
                         </StackPanel>
                     </ui:Card>
 
-                    <!-- Hovedknapp / Konverter -->
-                    <Grid>
-                        <!-- Start-knapp -->
-                        <ui:Button Content="{loc:Translate StartConversion}"
-                                   Appearance="Primary"
-                                   Icon="{ui:SymbolIcon PlayCircle24}"
-                                   Height="48"
-                                   FontSize="15"
-                                   FontWeight="SemiBold"
-                                   HorizontalAlignment="Stretch"
-                                   Command="{Binding StartConversionCommand}"
-                                   IsEnabled="{Binding CanConvert}"
-                                   Visibility="{Binding IsNotBusy, Converter={StaticResource BoolToVis}}" />
-
-                        <!-- Avbryt-knapp (vises kun under kjøring) -->
-                        <ui:Button Content="{loc:Translate CancelConversion}"
-                                   Appearance="Danger"
-                                   Icon="{ui:SymbolIcon DismissCircle24}"
-                                   Height="48"
-                                   FontSize="15"
-                                   FontWeight="SemiBold"
-                                   HorizontalAlignment="Stretch"
-                                   Command="{Binding CancelConversionCommand}"
-                                   Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
-                    </Grid>
-
+                    <!-- Kort: Handlinger etter konvertering har Margin="0,0,0,0" siden det er siste kort i rullisten -->
                 </StackPanel>
             </ScrollViewer>
+
+            <!-- Fastlåst bunnpanel: Start / Avbryt konvertering (Alltid synlig uavhengig av scrolling) -->
+            <Grid Grid.Row="1" Margin="0,10,0,0">
+                <!-- Start-knapp -->
+                <ui:Button Content="{loc:Translate StartConversion}"
+                           Appearance="Primary"
+                           Icon="{ui:SymbolIcon PlayCircle24}"
+                           Height="48"
+                           FontSize="15"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Stretch"
+                           Command="{Binding StartConversionCommand}"
+                           IsEnabled="{Binding CanConvert}"
+                           Visibility="{Binding IsNotBusy, Converter={StaticResource BoolToVis}}" />
+
+                <!-- Avbryt-knapp (vises kun under kjøring) -->
+                <ui:Button Content="{loc:Translate CancelConversion}"
+                           Appearance="Danger"
+                           Icon="{ui:SymbolIcon DismissCircle24}"
+                           Height="48"
+                           FontSize="15"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Stretch"
+                           Command="{Binding CancelConversionCommand}"
+                           Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}" />
+            </Grid>
         </Grid>
+    </Grid>
 
         <!-- Hurtigvisning (Quick Look Preview Overlay Modal) -->
         <Grid Grid.Row="0" Grid.RowSpan="2"
