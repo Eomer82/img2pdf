@@ -1,29 +1,33 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <!-- Bytt til net9.0-windows eller net8.0-windows dersom din maskin ikke har .NET 10 SDK installert ennå -->
-    <TargetFramework>net10.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-    <RootNamespace>Img2Pdf.App</RootNamespace>
-    <AssemblyName>Img2Pdf</AssemblyName>
-    <ApplicationTitle>Img2Pdf - Bilde til PDF-konverterer</ApplicationTitle>
-    <Version>1.0.0</Version>
-    <Company>Img2Pdf</Company>
-    <Description>Moderne og lettdrevet batch-konverterer for JPG, PNG og BMP til høykvalitets PDF.</Description>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- Moderne Fluent Design / Windows 11 UI (lepo.co) -->
-    <PackageReference Include="WPF-UI" Version="3.0.5" />
-
-    <!-- Tapsfri og rask PDF-generering -->
-    <PackageReference Include="PdfSharp" Version="6.2.4" />
-
-    <!-- MVVM Toolkit for ren arkitektur og ytelse -->
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-  </ItemGroup>
-
-</Project>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- Bytt til net9.0-windows eller net8.0-windows dersom din maskin ikke har .NET 10 SDK installert ennå -->
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>Img2Pdf.App</RootNamespace>
+    <AssemblyName>Img2Pdf</AssemblyName>
+    <ApplicationTitle>Img2Pdf - Bilde til PDF-konverterer</ApplicationTitle>
+    <Version>1.0.0</Version>
+    <Company>Img2Pdf</Company>
+    <Description>Moderne og lettdrevet batch-konverterer for JPG, PNG og BMP til høykvalitets PDF.</Description>
+
+    <!-- Single-file innstillinger: baker inn native WPF-biblioteker (wpfgfx_cor3.dll osv.) -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Moderne Fluent Design / Windows 11 UI (lepo.co) -->
+    <PackageReference Include="WPF-UI" Version="3.0.5" />
+
+    <!-- Tapsfri og rask PDF-generering -->
+    <PackageReference Include="PdfSharp" Version="6.2.4" />
+
+    <!-- MVVM Toolkit for ren arkitektur og ytelse -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+</Project>
