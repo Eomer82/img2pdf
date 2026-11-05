@@ -9,7 +9,7 @@ jobs:
   build-and-sign:
     runs-on: windows-latest
     permissions:
-      contents: write # Nødvendig for å legge ved den signerte filen til GitHub Release
+      contents: write # Nødvendig for å legge ved filen til GitHub Release
 
     steps:
       - name: Sjekk ut kildekode
@@ -32,7 +32,7 @@ jobs:
             -p:EnableCompressionInSingleFile=true `
             -o ./build-output
 
-      # 2. Last opp den usignerte filen midlertidig (krav fra SignPath for verifisering)
+      # 2. Last opp den usignerte filen midlertidig
       - name: Last opp usignert fil til GitHub Artifacts
         id: upload-unsigned
         uses: actions/upload-artifact@v4
@@ -40,8 +40,9 @@ jobs:
           name: unsigned-img2pdf
           path: ./build-output/Img2Pdf.exe
 
-      # 3. Send til SignPath for offisiell kodesignering
+      # 3. Send til SignPath for offisiell kodesignering (kjører når SignPath-nøkler er lagt inn)
       - name: Signer filen via SignPath
+        if: ${{ secrets.SIGNPATH_API_TOKEN != '' && secrets.SIGNPATH_ORGANIZATION_ID != '' }}
         uses: SignPath/github-action-submit-signing-request@v3
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -52,19 +53,32 @@ jobs:
           wait-for-completion: true
           output-artifact-directory: './signed-output'
 
-      # 4. Legg den ferdig signerte filen til GitHub Release
-      - name: Publiser signert Img2Pdf.exe til GitHub Release
+      # 4. Klargjør fil for utgivelse (bruker signert fil hvis tilgjengelig, ellers usignert)
+      - name: Klargjør utgivelsesfil
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "./release-asset"
+          if (Test-Path "./signed-output/Img2Pdf.exe") {
+            Write-Host "Bruker signert fil fra SignPath"
+            Copy-Item "./signed-output/Img2Pdf.exe" "./release-asset/Img2Pdf.exe" -Force
+          } else {
+            Write-Host "SignPath ikke konfigurert ennå - bruker nybygget fil"
+            Copy-Item "./build-output/Img2Pdf.exe" "./release-asset/Img2Pdf.exe" -Force
+          }
+
+      # 5. Legg den ferdige filen til GitHub Release
+      - name: Publiser Img2Pdf.exe til GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: ./signed-output/Img2Pdf.exe
+          files: ./release-asset/Img2Pdf.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. Ta vare på den signerte filen som artifact hvis workflow kjøres manuelt
-      - name: Last opp signert fil som nedlastbar artefakt
+      # 6. Ta vare på filen som artifact hvis workflow kjøres manuelt
+      - name: Last opp fil som nedlastbar artefakt
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
-          name: Img2Pdf-Signed
-          path: ./signed-output/Img2Pdf.exe
+          name: Img2Pdf-Windows-x64
+          path: ./release-asset/Img2Pdf.exe
