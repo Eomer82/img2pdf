@@ -55,13 +55,12 @@ public class LocalizationService : INotifyPropertyChanged
         string savedCode = LoadLanguagePreference();
         if (string.IsNullOrWhiteSpace(savedCode))
         {
-            // Auto-detect system language
             string sysLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLowerInvariant();
             savedCode = (sysLang == "nb" || sysLang == "no" || sysLang == "nn") ? "nb" : "en";
         }
 
         _currentLanguage = SupportedLanguages.FirstOrDefault(l => l.Code.Equals(savedCode, StringComparison.OrdinalIgnoreCase)) 
-                           ?? SupportedLanguages[0]; // default English
+                           ?? SupportedLanguages[0];
     }
 
     public void SetLanguage(string code)
@@ -83,7 +82,6 @@ public class LocalizationService : INotifyPropertyChanged
             return args.Length > 0 ? string.Format(text, args) : text;
         }
 
-        // Fallback to English
         if (inst._translations.TryGetValue("en", out var enDict) && enDict.TryGetValue(key, out var enText))
         {
             return args.Length > 0 ? string.Format(enText, args) : enText;
@@ -147,6 +145,7 @@ public class LocalizationService : INotifyPropertyChanged
             // Actions
             ["AddFiles"] = "Add images",
             ["AddFolder"] = "Add folder",
+            ["Rotate"] = "Rotate 90°",
             ["MoveUp"] = "Move up",
             ["MoveDown"] = "Move down",
             ["Remove"] = "Remove",
@@ -154,7 +153,7 @@ public class LocalizationService : INotifyPropertyChanged
 
             // Empty drop area
             ["DropAreaTitle"] = "Drag and drop images or folders here",
-            ["DropAreaSubtitle"] = "Supports JPG, JPEG, PNG, and BMP • 100% lossless original quality",
+            ["DropAreaSubtitle"] = "Supports JPG, JPEG, PNG, BMP, WebP, and TIFF • 100% lossless original quality",
             ["ChooseFiles"] = "Select files...",
             ["ChooseFolder"] = "Select folder...",
 
@@ -179,13 +178,25 @@ public class LocalizationService : INotifyPropertyChanged
             ["MergedFileName"] = "PDF File Name:",
             ["DefaultMergedFileName"] = "Images_Merged.pdf",
 
-            // Quality & Page setup
-            ["Card_PageSetup"] = "Quality & Page Setup",
-            ["Size_Original"] = "Original image size (1:1)",
-            ["Size_OriginalDesc"] = "Preserves 100% original quality and DPI without resampling.",
+            // Quality & Compression
+            ["Card_Quality"] = "Quality & Compression",
+            ["Quality_Lossless"] = "100% Lossless (Original quality)",
+            ["Quality_LosslessDesc"] = "Preserves bit-exact original image streams with zero quality loss.",
+            ["Quality_Compressed"] = "Optimized for email / web (JPEG)",
+            ["Quality_CompressedDesc"] = "Compresses images for significantly smaller file size.",
+            ["CompressionLevel"] = "JPEG Quality:",
+
+            // Page setup & Margins
+            ["Card_PageSetup"] = "Page Layout & Margins",
+            ["Size_Original"] = "Original image dimensions (1:1)",
+            ["Size_OriginalDesc"] = "Each page matches exact image dimensions without borders.",
             ["Size_A4"] = "Fit to A4 (Auto portrait/landscape)",
-            ["Size_A4Desc"] = "Scales image proportionally to standard page with margins.",
+            ["Size_A4Desc"] = "Scales image proportionally to standard A4 sheet.",
             ["Size_Letter"] = "Fit to US Letter",
+            ["Section_Margins"] = "Page Margins:",
+            ["Margin_None"] = "0 mm (Borderless / Edge-to-edge)",
+            ["Margin_Compact"] = "10 mm (Compact margin)",
+            ["Margin_Normal"] = "20 mm (Standard document margin)",
 
             // Output folder
             ["Card_OutputFolder"] = "Output Destination",
@@ -219,7 +230,7 @@ public class LocalizationService : INotifyPropertyChanged
 
             // Dialogs
             ["Dialog_SelectImagesTitle"] = "Select images to convert",
-            ["Dialog_ImageFilter"] = "Image files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|All files (*.*)|*.*",
+            ["Dialog_ImageFilter"] = "Image files (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif|All files (*.*)|*.*",
             ["Dialog_SelectFolderTitle"] = "Select folder containing images",
             ["Dialog_SelectOutputTitle"] = "Select destination folder for PDF files"
         };
@@ -237,6 +248,7 @@ public class LocalizationService : INotifyPropertyChanged
             // Actions
             ["AddFiles"] = "Legg til bilder",
             ["AddFolder"] = "Legg til mappe",
+            ["Rotate"] = "Roter 90°",
             ["MoveUp"] = "Flytt opp",
             ["MoveDown"] = "Flytt ned",
             ["Remove"] = "Fjern",
@@ -244,7 +256,7 @@ public class LocalizationService : INotifyPropertyChanged
 
             // Empty drop area
             ["DropAreaTitle"] = "Dra og slipp bilder eller mapper her",
-            ["DropAreaSubtitle"] = "Støtter JPG, JPEG, PNG og BMP • Bevarer 100 % original kvalitet",
+            ["DropAreaSubtitle"] = "Støtter JPG, JPEG, PNG, BMP, WebP og TIFF • Bevarer 100 % original kvalitet",
             ["ChooseFiles"] = "Velg filer...",
             ["ChooseFolder"] = "Velg mappe...",
 
@@ -269,13 +281,25 @@ public class LocalizationService : INotifyPropertyChanged
             ["MergedFileName"] = "PDF-filnavn:",
             ["DefaultMergedFileName"] = "Bilder_Samlet.pdf",
 
-            // Quality & Page setup
-            ["Card_PageSetup"] = "Kvalitet & Sideoppsett",
+            // Quality & Compression
+            ["Card_Quality"] = "Bildekvalitet & Komprimering",
+            ["Quality_Lossless"] = "100 % Tapsfri (Original kvalitet)",
+            ["Quality_LosslessDesc"] = "Bevarer originalfiler og piksler uten rekomprimering.",
+            ["Quality_Compressed"] = "Optimalisert for e-post / web (JPEG)",
+            ["Quality_CompressedDesc"] = "Komprimerer bildene kraftig for mye mindre filstørrelse.",
+            ["CompressionLevel"] = "JPEG-kvalitet:",
+
+            // Page setup & Margins
+            ["Card_PageSetup"] = "Sideoppsett & Marger",
             ["Size_Original"] = "Original bildestørrelse (1:1)",
-            ["Size_OriginalDesc"] = "Beholder 100 % originalkvalitet og DPI uten resampling.",
+            ["Size_OriginalDesc"] = "Hver PDF-side får nøyaktig samme mål som bildet uten kanter.",
             ["Size_A4"] = "Tilpass til A4 (Auto stående/ligg.)",
-            ["Size_A4Desc"] = "Skalerer bildet proporsjonalt til standardside med marger.",
+            ["Size_A4Desc"] = "Skalerer bildet proporsjonalt til et standard A4-ark.",
             ["Size_Letter"] = "Tilpass til US Letter",
+            ["Section_Margins"] = "Sidemarger:",
+            ["Margin_None"] = "0 mm (Kant-til-kant / Uten marg)",
+            ["Margin_Compact"] = "10 mm (Kompakt marg)",
+            ["Margin_Normal"] = "20 mm (Normal dokumentmarg)",
 
             // Output folder
             ["Card_OutputFolder"] = "Mappe for ferdige filer",
@@ -309,7 +333,7 @@ public class LocalizationService : INotifyPropertyChanged
 
             // Dialogs
             ["Dialog_SelectImagesTitle"] = "Velg bilder som skal konverteres",
-            ["Dialog_ImageFilter"] = "Bildefiler (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp|Alle filer (*.*)|*.*",
+            ["Dialog_ImageFilter"] = "Bildefiler (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif|Alle filer (*.*)|*.*",
             ["Dialog_SelectFolderTitle"] = "Velg mappe med bilder",
             ["Dialog_SelectOutputTitle"] = "Velg mappe for lagring av PDF-filer"
         };

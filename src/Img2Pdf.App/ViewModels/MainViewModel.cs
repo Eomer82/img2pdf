@@ -15,7 +15,10 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<ImageFileItem> Files { get; } = new();
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSelectedItem))]
     private ImageFileItem? _selectedItem;
+
+    public bool HasSelectedItem => SelectedItem != null;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsIndividualMode))]
@@ -44,6 +47,7 @@ public partial class MainViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IsOriginalSize))]
     [NotifyPropertyChangedFor(nameof(IsA4Size))]
     [NotifyPropertyChangedFor(nameof(IsLetterSize))]
+    [NotifyPropertyChangedFor(nameof(HasMarginsConfigurable))]
     private PageSizeMode _pageSizeMode = PageSizeMode.OriginalImageSize;
 
     public bool IsOriginalSize
@@ -70,6 +74,67 @@ public partial class MainViewModel : ObservableObject
         set
         {
             if (value) PageSizeMode = PageSizeMode.Letter_AutoOrientation;
+        }
+    }
+
+    public bool HasMarginsConfigurable => !IsOriginalSize;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsLosslessQuality))]
+    [NotifyPropertyChangedFor(nameof(IsCompressedQuality))]
+    private QualityMode _qualityMode = QualityMode.Lossless;
+
+    public bool IsLosslessQuality
+    {
+        get => QualityMode == QualityMode.Lossless;
+        set
+        {
+            if (value) QualityMode = QualityMode.Lossless;
+        }
+    }
+
+    public bool IsCompressedQuality
+    {
+        get => QualityMode == QualityMode.Compressed;
+        set
+        {
+            if (value) QualityMode = QualityMode.Compressed;
+        }
+    }
+
+    [ObservableProperty]
+    private int _jpegQuality = 80;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsMarginNone))]
+    [NotifyPropertyChangedFor(nameof(IsMarginCompact))]
+    [NotifyPropertyChangedFor(nameof(IsMarginNormal))]
+    private PageMarginMode _marginMode = PageMarginMode.Compact;
+
+    public bool IsMarginNone
+    {
+        get => MarginMode == PageMarginMode.None;
+        set
+        {
+            if (value) MarginMode = PageMarginMode.None;
+        }
+    }
+
+    public bool IsMarginCompact
+    {
+        get => MarginMode == PageMarginMode.Compact;
+        set
+        {
+            if (value) MarginMode = PageMarginMode.Compact;
+        }
+    }
+
+    public bool IsMarginNormal
+    {
+        get => MarginMode == PageMarginMode.Normal;
+        set
+        {
+            if (value) MarginMode = PageMarginMode.Normal;
         }
     }
 
@@ -160,7 +225,6 @@ public partial class MainViewModel : ObservableObject
             var discovered = await ImageDiscoveryService.DiscoverImagesAsync(paths);
             foreach (var item in discovered)
             {
-                // Unngå duplikater
                 if (!Files.Any(f => string.Equals(f.FilePath, item.FilePath, StringComparison.OrdinalIgnoreCase)))
                 {
                     Files.Add(item);
@@ -205,6 +269,15 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void RotateSelected()
+    {
+        if (SelectedItem != null)
+        {
+            SelectedItem.ManualRotation = (SelectedItem.ManualRotation + 90) % 360;
+        }
+    }
+
+    [RelayCommand]
     private void ClearAll()
     {
         Files.Clear();
@@ -237,6 +310,28 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    public void SortFiles(int columnIndex, bool ascending)
+    {
+        if (Files.Count <= 1) return;
+
+        IEnumerable<ImageFileItem> sorted = columnIndex switch
+        {
+            0 => ascending ? Files.OrderBy(f => f.FileName) : Files.OrderByDescending(f => f.FileName),
+            1 => ascending ? Files.OrderBy(f => f.Dimensions) : Files.OrderByDescending(f => f.Dimensions),
+            2 => ascending ? Files.OrderBy(f => f.FileSizeBytes) : Files.OrderByDescending(f => f.FileSizeBytes),
+            3 => ascending ? Files.OrderBy(f => f.Status) : Files.OrderByDescending(f => f.Status),
+            4 => ascending ? Files.OrderBy(f => f.Directory) : Files.OrderByDescending(f => f.Directory),
+            _ => Files
+        };
+
+        var list = sorted.ToList();
+        Files.Clear();
+        foreach (var item in list)
+        {
+            Files.Add(item);
+        }
+    }
+
     [RelayCommand]
     private async Task StartConversionAsync()
     {
@@ -250,6 +345,9 @@ public partial class MainViewModel : ObservableObject
         {
             OutputMode = OutputMode,
             PageSizeMode = PageSizeMode,
+            QualityMode = QualityMode,
+            JpegQuality = JpegQuality,
+            MarginMode = MarginMode,
             MergedFileName = MergedFileName,
             UseCustomOutputFolder = UseCustomOutputFolder,
             CustomOutputFolder = CustomOutputFolder,
@@ -258,7 +356,7 @@ public partial class MainViewModel : ObservableObject
             Password = Password
         };
 
-        // Nullstill status for alle elementer
+        // Reset status for all items
         foreach (var file in Files)
         {
             file.Status = ConversionStatus.Venter;

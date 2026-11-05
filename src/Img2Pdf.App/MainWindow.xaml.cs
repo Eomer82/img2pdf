@@ -8,6 +8,9 @@ namespace Img2Pdf.App;
 
 public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
 {
+    private int _lastSortColumn = -1;
+    private bool _sortAscending = true;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -107,6 +110,31 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
             menu.PlacementTarget = element;
             menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             menu.IsOpen = true;
+        }
+    }
+
+    private void OnColumnHeaderClick(object sender, RoutedEventArgs e)
+    {
+        if (e.OriginalSource is GridViewColumnHeader header && header.Column != null)
+        {
+            if (sender is ListView listView && listView.View is GridView gridView)
+            {
+                int colIndex = gridView.Columns.IndexOf(header.Column);
+                if (colIndex >= 0)
+                {
+                    if (_lastSortColumn == colIndex)
+                    {
+                        _sortAscending = !_sortAscending;
+                    }
+                    else
+                    {
+                        _lastSortColumn = colIndex;
+                        _sortAscending = true;
+                    }
+
+                    ViewModel.SortFiles(colIndex, _sortAscending);
+                }
+            }
         }
     }
 }

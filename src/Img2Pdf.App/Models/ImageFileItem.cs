@@ -1,3 +1,4 @@
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Img2Pdf.App.Services;
 
@@ -31,6 +32,22 @@ public partial class ImageFileItem : ObservableObject
 
     [ObservableProperty]
     private bool _isSelected;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TotalRotation))]
+    private int _manualRotation = 0;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TotalRotation))]
+    private int _exifRotation = 0;
+
+    public int TotalRotation => (ExifRotation + ManualRotation) % 360;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasThumbnail))]
+    private ImageSource? _thumbnail;
+
+    public bool HasThumbnail => Thumbnail != null;
 
     public string StatusDisplay => Status switch
     {
