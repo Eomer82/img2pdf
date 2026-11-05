@@ -1,21 +1,22 @@
-# PowerShell skript for å bygge Img2Pdf til en enkeltstående .exe-fil
-Write-Host "Bygger Img2Pdf som selvstendig Windows-applikasjon..." -ForegroundColor Cyan
+# Building Img2Pdf for Windows x64 (Self-Contained Single File)
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+Write-Host "Building Img2Pdf for Windows x64..." -ForegroundColor Cyan
 
-$projectPath = "src/Img2Pdf.App/Img2Pdf.App.csproj"
-$outputPath = "./publish"
-
-dotnet publish $projectPath `
-    -c Release `
-    -r win-x64 `
-    --self-contained true `
-    -p:PublishSingleFile=true `
-    -p:IncludeNativeLibrariesForSelfExtract=true `
-    -p:EnableCompressionInSingleFile=true `
-    -o $outputPath
+dotnet publish src/Img2Pdf.App/Img2Pdf.App.csproj `
+  -c Release `
+  -r win-x64 `
+  --self-contained true `
+  -p:PublishSingleFile=true `
+  -p:IncludeNativeLibrariesForSelfExtract=true `
+  -p:EnableCompressionInSingleFile=true `
+  -o ./publish
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "`nBygging fullført!" -ForegroundColor Green
-    Write-Host "Kjørbar fil ligger i: $outputPath/Img2Pdf.exe" -ForegroundColor Yellow
+    Write-Host "`n============================================================" -ForegroundColor Green
+    Write-Host "Build successful!" -ForegroundColor Green
+    Write-Host "Output binary: publish/Img2Pdf.exe" -ForegroundColor Yellow
+    Write-Host "Standalone executable - no .NET runtime required on target PC." -ForegroundColor Gray
+    Write-Host "============================================================" -ForegroundColor Green
 } else {
-    Write-Host "`nBygging feilet. Kontroller at .NET SDK er installert." -ForegroundColor Red
+    Write-Host "Build failed. Please verify that .NET SDK is installed." -ForegroundColor Red
 }

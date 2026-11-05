@@ -9,10 +9,10 @@
     <UseWPF>true</UseWPF>
     <RootNamespace>Img2Pdf.App</RootNamespace>
     <AssemblyName>Img2Pdf</AssemblyName>
-    <ApplicationTitle>Img2Pdf - Bilde til PDF-konverterer</ApplicationTitle>
+    <ApplicationTitle>Img2Pdf - Image to PDF Converter</ApplicationTitle>
     <Version>1.0.0</Version>
     <Company>Img2Pdf</Company>
-    <Description>Moderne og lettdrevet batch-konverterer for JPG, PNG og BMP til høykvalitets PDF.</Description>
+    <Description>Modern, fast, and lightweight batch image-to-PDF converter for Windows.</Description>
 
     <!-- Single-file innstillinger: baker inn native WPF-biblioteker (wpfgfx_cor3.dll osv.) -->
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>

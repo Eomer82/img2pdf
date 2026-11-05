@@ -74,7 +74,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    private string _mergedFileName = "Bilder_Samlet.pdf";
+    private string _mergedFileName;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UseSourceFolder))]
@@ -115,27 +115,46 @@ public partial class MainViewModel : ObservableObject
     private double _progressValue;
 
     [ObservableProperty]
-    private string _progressText = "Klar til å konvertere";
+    private string _progressText;
 
     [ObservableProperty]
-    private string _statusSummary = "Ingen bilder lagt til";
+    private string _statusSummary;
 
     public bool CanConvert => Files.Count > 0 && !IsBusy;
 
     public MainViewModel()
     {
+        _mergedFileName = LocalizationService.GetString("DefaultMergedFileName");
+        _progressText = LocalizationService.GetString("ReadyToConvert");
+        _statusSummary = LocalizationService.GetString("NoImagesSelected");
+
         Files.CollectionChanged += (_, _) =>
         {
             HasFiles = Files.Count > 0;
             UpdateStatusSummary();
             OnPropertyChanged(nameof(CanConvert));
         };
+
+        LocalizationService.Instance.LanguageChanged += (_, _) =>
+        {
+            UpdateStatusSummary();
+            if (!IsBusy)
+            {
+                ProgressText = Files.Count > 0
+                    ? LocalizationService.GetString("ImagesReady", Files.Count)
+                    : LocalizationService.GetString("ReadyToConvert");
+            }
+            foreach (var file in Files)
+            {
+                file.RefreshLocalization();
+            }
+        };
     }
 
     public async Task AddPathsAsync(IEnumerable<string> paths)
     {
         IsBusy = true;
-        ProgressText = "Søker etter bildefiler...";
+        ProgressText = LocalizationService.GetString("SearchingImages");
         try
         {
             var discovered = await ImageDiscoveryService.DiscoverImagesAsync(paths);
@@ -150,12 +169,14 @@ public partial class MainViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            ProgressText = $"Feil ved lesing av filer: {ex.Message}";
+            ProgressText = LocalizationService.GetString("ErrorReadingFiles", ex.Message);
         }
         finally
         {
             IsBusy = false;
-            ProgressText = Files.Count > 0 ? $"{Files.Count} bilder klare" : "Klar til å konvertere";
+            ProgressText = Files.Count > 0 
+                ? LocalizationService.GetString("ImagesReady", Files.Count) 
+                : LocalizationService.GetString("ReadyToConvert");
             UpdateStatusSummary();
         }
     }
@@ -164,12 +185,13 @@ public partial class MainViewModel : ObservableObject
     {
         if (Files.Count == 0)
         {
-            StatusSummary = "Ingen bilder valgt";
+            StatusSummary = LocalizationService.GetString("NoImagesSelected");
             return;
         }
 
         long totalBytes = Files.Sum(f => f.FileSizeBytes);
-        StatusSummary = $"{Files.Count} bilde{(Files.Count > 1 ? "r" : "")} ({ImageFileItem.FormatBytes(totalBytes)})";
+        string plural = Files.Count > 1 ? LocalizationService.GetString("PluralSuffix") : "";
+        StatusSummary = LocalizationService.GetString("ImagesCount", Files.Count, plural, ImageFileItem.FormatBytes(totalBytes));
     }
 
     [RelayCommand]
@@ -188,7 +210,7 @@ public partial class MainViewModel : ObservableObject
         Files.Clear();
         SelectedItem = null;
         ProgressValue = 0;
-        ProgressText = "Klar til å konvertere";
+        ProgressText = LocalizationService.GetString("ReadyToConvert");
     }
 
     [RelayCommand]
@@ -246,7 +268,7 @@ public partial class MainViewModel : ObservableObject
         var progress = new Progress<ConversionProgressReport>(report =>
         {
             ProgressValue = report.Percentage;
-            ProgressText = $"Konverterer {report.CurrentIndex} av {report.TotalCount}: {report.CurrentFile}";
+            ProgressText = LocalizationService.GetString("ConvertingProgress", report.CurrentIndex, report.TotalCount, report.CurrentFile);
         });
 
         try
@@ -256,7 +278,7 @@ public partial class MainViewModel : ObservableObject
             stopwatch.Stop();
 
             ProgressValue = 100;
-            ProgressText = $"Fullført på {stopwatch.Elapsed.TotalSeconds:F1} sekunder!";
+            ProgressText = LocalizationService.GetString("CompletedInSeconds", stopwatch.Elapsed.TotalSeconds);
 
             if (settings.OpenFolderWhenDone)
             {
@@ -276,11 +298,11 @@ public partial class MainViewModel : ObservableObject
         }
         catch (OperationCanceledException)
         {
-            ProgressText = "Konvertering avbrutt av bruker.";
+            ProgressText = LocalizationService.GetString("ConversionCancelled");
         }
         catch (Exception ex)
         {
-            ProgressText = $"Feil under konvertering: {ex.Message}";
+            ProgressText = LocalizationService.GetString("ConversionFailed", ex.Message);
         }
         finally
         {

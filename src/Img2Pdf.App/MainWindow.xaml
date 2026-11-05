@@ -6,8 +6,10 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:vm="clr-namespace:Img2Pdf.App.ViewModels"
         xmlns:models="clr-namespace:Img2Pdf.App.Models"
+        xmlns:services="clr-namespace:Img2Pdf.App.Services"
+        xmlns:loc="clr-namespace:Img2Pdf.App.Services"
         mc:Ignorable="d"
-        Title="Img2Pdf - Bilde til PDF-konverterer"
+        Title="{loc:Translate AppTitle}"
         Height="760" Width="1100"
         MinHeight="600" MinWidth="850"
         WindowStartupLocation="CenterScreen"
@@ -36,16 +38,25 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Tittellinje i Windows 11 Fluent stil -->
+        <!-- Tittellinje i Windows 11 Fluent stil med språk- og temavalg -->
         <ui:TitleBar Grid.Row="0"
-                     Title="Img2Pdf • Høykvalitets bildekonverterer"
+                     Title="{loc:Translate AppHeaderTitle}"
                      ShowMaximize="True"
                      ShowMinimize="True">
             <ui:TitleBar.Header>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
-                    <ui:Button Content="Bytt tema" 
+                    <ui:Button Content="{loc:Translate ThemeToggle}" 
                                Icon="{ui:SymbolIcon WeatherMoon24}" 
                                Click="OnToggleThemeClicked" 
+                               Appearance="Transparent" 
+                               Padding="6,4" 
+                               FontSize="12" 
+                               Margin="0,0,4,0" />
+
+                    <ui:Button x:Name="LanguageButton"
+                               Content="{Binding CurrentLanguage.DisplayName, Source={x:Static services:LocalizationService.Instance}}" 
+                               Icon="{ui:SymbolIcon LocalLanguage24}" 
+                               Click="OnLanguageMenuClicked" 
                                Appearance="Transparent" 
                                Padding="6,4" 
                                FontSize="12" />
@@ -71,29 +82,29 @@
 
                 <!-- Handlingsknapper over listen -->
                 <WrapPanel Grid.Row="0" Margin="0,0,0,10">
-                    <ui:Button Content="Legg til bilder"
+                    <ui:Button Content="{loc:Translate AddFiles}"
                                Icon="{ui:SymbolIcon ImageAdd24}"
                                Appearance="Primary"
                                Click="OnAddFilesClicked"
                                Margin="0,0,8,6" />
-                    <ui:Button Content="Legg til mappe"
+                    <ui:Button Content="{loc:Translate AddFolder}"
                                Icon="{ui:SymbolIcon FolderAdd24}"
                                Click="OnAddFolderClicked"
                                Margin="0,0,8,6" />
-                    <ui:Button Content="Flytt opp"
+                    <ui:Button Content="{loc:Translate MoveUp}"
                                Icon="{ui:SymbolIcon ChevronUp24}"
                                Command="{Binding MoveUpCommand}"
                                Margin="0,0,8,6" />
-                    <ui:Button Content="Flytt ned"
+                    <ui:Button Content="{loc:Translate MoveDown}"
                                Icon="{ui:SymbolIcon ChevronDown24}"
                                Command="{Binding MoveDownCommand}"
                                Margin="0,0,8,6" />
-                    <ui:Button Content="Fjern"
+                    <ui:Button Content="{loc:Translate Remove}"
                                Icon="{ui:SymbolIcon Delete48}"
                                Appearance="Secondary"
                                Command="{Binding RemoveSelectedCommand}"
                                Margin="0,0,8,6" />
-                    <ui:Button Content="Tøm liste"
+                    <ui:Button Content="{loc:Translate ClearList}"
                                Appearance="Transparent"
                                Command="{Binding ClearAllCommand}"
                                Margin="0,0,0,6" />
@@ -106,18 +117,18 @@
                          Visibility="{Binding HasNoFiles, Converter={StaticResource BoolToVis}}">
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                         <ui:SymbolIcon Symbol="ArrowDownload48" FontSize="56" HorizontalAlignment="Center" Margin="0,0,0,12" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                        <TextBlock Text="Dra og slipp bilder eller mapper her"
+                        <TextBlock Text="{loc:Translate DropAreaTitle}"
                                    FontSize="18"
                                    FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
                                    Margin="0,0,0,6" />
-                        <TextBlock Text="Støtter JPG, JPEG, PNG og BMP • Bevarer 100 % original kvalitet"
+                        <TextBlock Text="{loc:Translate DropAreaSubtitle}"
                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                    HorizontalAlignment="Center"
                                    Margin="0,0,0,18" />
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <ui:Button Content="Velg filer..." Click="OnAddFilesClicked" Margin="0,0,10,0" />
-                            <ui:Button Content="Velg mappe..." Click="OnAddFolderClicked" />
+                            <ui:Button Content="{loc:Translate ChooseFiles}" Click="OnAddFilesClicked" Margin="0,0,10,0" />
+                            <ui:Button Content="{loc:Translate ChooseFolder}" Click="OnAddFolderClicked" />
                         </StackPanel>
                     </StackPanel>
                 </ui:Card>
@@ -169,7 +180,7 @@
                         <ListView.View>
                             <GridView>
                                 <!-- Filnavn: Tydelig hvit/lys tekst med lys cyan ikon -->
-                                <GridViewColumn Header="Filnavn" Width="270">
+                                <GridViewColumn Header="{loc:Translate Col_FileName}" Width="270">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" Margin="2,2">
@@ -186,7 +197,7 @@
                                 </GridViewColumn>
 
                                 <!-- Oppløsning -->
-                                <GridViewColumn Header="Oppløsning" Width="110">
+                                <GridViewColumn Header="{loc:Translate Col_Dimensions}" Width="110">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding Dimensions}" 
@@ -197,7 +208,7 @@
                                 </GridViewColumn>
 
                                 <!-- Størrelse -->
-                                <GridViewColumn Header="Størrelse" Width="90">
+                                <GridViewColumn Header="{loc:Translate Col_Size}" Width="90">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding FormattedSize}" 
@@ -207,15 +218,15 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
-                                <!-- Status: Høy kontrast merker for mørk modus -->
-                                <GridViewColumn Header="Status" Width="105">
+                                <!-- Status: Høy kontrast merker med lokalisert tekst -->
+                                <GridViewColumn Header="{loc:Translate Col_Status}" Width="110">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <Border>
                                                 <Border.Style>
                                                     <Style TargetType="Border" BasedOn="{StaticResource StatusBadgeStyle}">
                                                         <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding Status}" Value="{x:Static models:ConversionStatus.Venter}">
+                                                             <DataTrigger Binding="{Binding Status}" Value="{x:Static models:ConversionStatus.Venter}">
                                                                 <Setter Property="Background" Value="#25888888" />
                                                                 <Setter Property="TextBlock.Foreground" Value="#E0E0E0" />
                                                             </DataTrigger>
@@ -235,14 +246,14 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
-                                                <TextBlock Text="{Binding Status}" FontWeight="SemiBold" FontSize="11" />
+                                                <TextBlock Text="{Binding StatusDisplay}" FontWeight="SemiBold" FontSize="11" />
                                             </Border>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
                                 <!-- Mappe -->
-                                <GridViewColumn Header="Mappe" Width="200">
+                                <GridViewColumn Header="{loc:Translate Col_Folder}" Width="200">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding Directory}" 
@@ -290,18 +301,18 @@
                     <!-- Kort: Konverteringsmodus -->
                     <ui:Card Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="Konverteringsmodus" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
-                            <RadioButton Content="Én PDF per bilde (Separat)"
+                            <TextBlock Text="{loc:Translate Card_ModeTitle}" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
+                            <RadioButton Content="{loc:Translate Mode_Individual}"
                                          IsChecked="{Binding IsIndividualMode, Mode=TwoWay}"
                                          Margin="0,0,0,6" />
-                            <RadioButton Content="Slå sammen alle til én PDF"
+                            <RadioButton Content="{loc:Translate Mode_Merged}"
                                          IsChecked="{Binding IsMergedMode, Mode=TwoWay}"
                                          Margin="0,0,0,6" />
 
                             <!-- Filnavn for samlet PDF -->
                             <StackPanel Margin="24,6,0,0" 
                                         Visibility="{Binding IsMergedMode, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="PDF-filnavn:" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" Margin="0,0,0,4" />
+                                <TextBlock Text="{loc:Translate MergedFileName}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" FontSize="12" Margin="0,0,0,4" />
                                 <TextBox Text="{Binding MergedFileName, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                         </StackPanel>
@@ -310,26 +321,26 @@
                     <!-- Kort: Sideoppsett & Kvalitet -->
                     <ui:Card Margin="0,0,0,12">
                         <StackPanel>
-                            <TextBlock Text="Kvalitet &amp; Sideoppsett" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
-                            <RadioButton Content="Original bildestørrelse (1:1)"
+                            <TextBlock Text="{loc:Translate Card_PageSetup}" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
+                            <RadioButton Content="{loc:Translate Size_Original}"
                                          IsChecked="{Binding IsOriginalSize, Mode=TwoWay}"
                                          Margin="0,0,0,4" />
-                            <TextBlock Text="Beholder 100 % originalkvalitet og DPI uten resampling."
+                            <TextBlock Text="{loc:Translate Size_OriginalDesc}"
                                        FontSize="11"
                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                        Margin="24,0,0,8"
                                        TextWrapping="Wrap" />
 
-                            <RadioButton Content="Tilpass til A4 (Auto stående/ligg.)"
+                            <RadioButton Content="{loc:Translate Size_A4}"
                                          IsChecked="{Binding IsA4Size, Mode=TwoWay}"
                                          Margin="0,0,0,4" />
-                            <TextBlock Text="Skalerer bildet proporsjonalt til standardside med marger."
+                            <TextBlock Text="{loc:Translate Size_A4Desc}"
                                        FontSize="11"
                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                        Margin="24,0,0,8"
                                        TextWrapping="Wrap" />
 
-                            <RadioButton Content="Tilpass til US Letter"
+                            <RadioButton Content="{loc:Translate Size_Letter}"
                                          IsChecked="{Binding IsLetterSize, Mode=TwoWay}"
                                          Margin="0,0,0,4" />
                         </StackPanel>
@@ -338,22 +349,22 @@
                     <!-- Kort: Utdatamappe -->
                     <ui:Card Margin="0,0,0,16">
                         <StackPanel>
-                            <TextBlock Text="Mappe for ferdige filer" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
-                            <RadioButton Content="Samme mappe som kildefil"
+                            <TextBlock Text="{loc:Translate Card_OutputFolder}" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
+                            <RadioButton Content="{loc:Translate Output_Source}"
                                          IsChecked="{Binding UseSourceFolder, Mode=TwoWay}"
                                          Margin="0,0,0,6" />
 
-                            <RadioButton Content="Spesifikk mappe"
+                            <RadioButton Content="{loc:Translate Output_Custom}"
                                          IsChecked="{Binding UseCustomOutputFolder, Mode=TwoWay}"
                                          Margin="0,0,0,6" />
 
                             <DockPanel Margin="0,4,0,10"
                                        Visibility="{Binding UseCustomOutputFolder, Converter={StaticResource BoolToVis}}">
-                                <ui:Button DockPanel.Dock="Right" Content="Bla..." Click="OnBrowseFolderClicked" Margin="6,0,0,0" />
+                                <ui:Button DockPanel.Dock="Right" Content="{loc:Translate Browse}" Click="OnBrowseFolderClicked" Margin="6,0,0,0" />
                                 <TextBox Text="{Binding CustomOutputFolder, UpdateSourceTrigger=PropertyChanged}" />
                             </DockPanel>
 
-                            <CheckBox Content="Åpne mappen når konvertering er ferdig"
+                            <CheckBox Content="{loc:Translate OpenWhenDone}"
                                       IsChecked="{Binding OpenFolderWhenDone, Mode=TwoWay}"
                                       Margin="0,4,0,0" />
                         </StackPanel>
@@ -362,19 +373,19 @@
                     <!-- Kort: Sikkerhet & Passordbeskyttelse -->
                     <ui:Card Margin="0,0,0,16">
                         <StackPanel>
-                            <TextBlock Text="Sikkerhet &amp; Passord" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
-                            <CheckBox Content="Passordbeskytt PDF"
+                            <TextBlock Text="{loc:Translate Card_Security}" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
+                            <CheckBox Content="{loc:Translate Security_Enable}"
                                       IsChecked="{Binding EnablePasswordProtection, Mode=TwoWay}"
                                       Margin="0,0,0,6" />
 
                             <StackPanel Margin="24,2,0,0"
                                         Visibility="{Binding EnablePasswordProtection, Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Passord for å åpne PDF:" 
+                                <TextBlock Text="{loc:Translate Security_PasswordLabel}" 
                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}" 
                                            FontSize="12" 
                                            Margin="0,0,0,4" />
                                 <TextBox Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" />
-                                <TextBlock Text="Krypterer filen(e) slik at passord kreves for visning."
+                                <TextBlock Text="{loc:Translate Security_Desc}"
                                            FontSize="11"
                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                            Margin="0,4,0,0"
@@ -386,7 +397,7 @@
                     <!-- Hovedknapp / Konverter -->
                     <Grid>
                         <!-- Start-knapp -->
-                        <ui:Button Content="Start konvertering"
+                        <ui:Button Content="{loc:Translate StartConversion}"
                                    Appearance="Primary"
                                    Icon="{ui:SymbolIcon PlayCircle24}"
                                    Height="48"
@@ -398,7 +409,7 @@
                                    Visibility="{Binding IsNotBusy, Converter={StaticResource BoolToVis}}" />
 
                         <!-- Avbryt-knapp (vises kun under kjøring) -->
-                        <ui:Button Content="Avbryt konvertering"
+                        <ui:Button Content="{loc:Translate CancelConversion}"
                                    Appearance="Danger"
                                    Icon="{ui:SymbolIcon DismissCircle24}"
                                    Height="48"

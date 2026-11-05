@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Img2Pdf.App.Services;
 
 namespace Img2Pdf.App.Models;
 
@@ -19,9 +20,10 @@ public partial class ImageFileItem : ObservableObject
     public string FormattedSize => FormatBytes(FileSizeBytes);
 
     [ObservableProperty]
-    private string _dimensions = "Ukjent";
+    private string _dimensions = LocalizationService.GetString("Dimensions_Unknown");
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusDisplay))]
     private ConversionStatus _status = ConversionStatus.Venter;
 
     [ObservableProperty]
@@ -29,6 +31,24 @@ public partial class ImageFileItem : ObservableObject
 
     [ObservableProperty]
     private bool _isSelected;
+
+    public string StatusDisplay => Status switch
+    {
+        ConversionStatus.Venter => LocalizationService.GetString("Status_Waiting"),
+        ConversionStatus.Behandler => LocalizationService.GetString("Status_Processing"),
+        ConversionStatus.Fullført => LocalizationService.GetString("Status_Completed"),
+        ConversionStatus.Feilet => LocalizationService.GetString("Status_Failed"),
+        _ => Status.ToString()
+    };
+
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(StatusDisplay));
+        if (Dimensions == "Ukjent" || Dimensions == "Unknown")
+        {
+            Dimensions = LocalizationService.GetString("Dimensions_Unknown");
+        }
+    }
 
     public static string FormatBytes(long bytes)
     {

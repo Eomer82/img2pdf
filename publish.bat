@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-echo Bygger Img2Pdf for Windows x64 som selvstendig enkeltfil...
+echo Building Img2Pdf for Windows x64 (Self-Contained Single File)...
 echo.
 
 dotnet publish src\Img2Pdf.App\Img2Pdf.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o .\publish
@@ -8,12 +8,12 @@ dotnet publish src\Img2Pdf.App\Img2Pdf.App.csproj -c Release -r win-x64 --self-c
 if %ERRORLEVEL% EQU 0 (
     echo.
     echo ============================================================
-    echo Bygging fullført!
-    echo Ferdig programfil: publish\Img2Pdf.exe
-    echo Ingen .NET runtime kreves på måldatamaskinen.
+    echo Build successful!
+    echo Output binary: publish\Img2Pdf.exe
+    echo Standalone executable - no .NET runtime required on target PC.
     echo ============================================================
 ) else (
     echo.
-    echo Feil oppstod under bygging. Sjekk at .NET SDK er installert.
+    echo Build failed. Please verify that .NET SDK is installed.
 )
 pause
