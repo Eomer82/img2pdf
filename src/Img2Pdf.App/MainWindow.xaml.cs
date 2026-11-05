@@ -171,6 +171,11 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
                 ViewModel.RotateSelectedCommand.Execute(null);
                 e.Handled = true;
             }
+            else if (e.Key == Key.C)
+            {
+                ViewModel.ToggleCropModeCommand.Execute(null);
+                e.Handled = true;
+            }
         }
         else
         {

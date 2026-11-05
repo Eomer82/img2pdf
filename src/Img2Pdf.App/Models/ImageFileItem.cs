@@ -21,6 +21,9 @@ public partial class ImageFileItem : ObservableObject
     public string FormattedSize => FormatBytes(FileSizeBytes);
 
     [ObservableProperty]
+    private bool _isPdf;
+
+    [ObservableProperty]
     private string _dimensions = LocalizationService.GetString("Dimensions_Unknown");
 
     [ObservableProperty]
@@ -42,6 +45,33 @@ public partial class ImageFileItem : ObservableObject
     private int _exifRotation = 0;
 
     public int TotalRotation => (ExifRotation + ManualRotation) % 360;
+
+    // Crop parameters (percentages 0.0 to 45.0)
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasCrop))]
+    private double _cropLeft = 0;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasCrop))]
+    private double _cropTop = 0;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasCrop))]
+    private double _cropRight = 0;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasCrop))]
+    private double _cropBottom = 0;
+
+    public bool HasCrop => CropLeft > 0.001 || CropTop > 0.001 || CropRight > 0.001 || CropBottom > 0.001;
+
+    public void ResetCrop()
+    {
+        CropLeft = 0;
+        CropTop = 0;
+        CropRight = 0;
+        CropBottom = 0;
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasThumbnail))]

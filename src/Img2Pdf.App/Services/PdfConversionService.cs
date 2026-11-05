@@ -4,6 +4,7 @@ using Img2Pdf.App.Models;
 using PdfSharp;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
 
 namespace Img2Pdf.App.Services;
 
@@ -68,7 +69,21 @@ public class PdfConversionService
 
                     try
                     {
-                        AddMultiImagePage(document, new[] { item }, settings, disposables);
+                        if (item.IsPdf)
+                        {
+                            var inputDoc = PdfReader.Open(item.FilePath, PdfDocumentOpenMode.Import);
+                            disposables.Add(inputDoc);
+                            for (int p = 0; p < inputDoc.Pages.Count; p++)
+                            {
+                                document.AddPage(inputDoc.Pages[p]);
+                            }
+                        }
+                        else
+                        {
+                            AddMultiImagePage(document, new[] { item }, settings, disposables);
+                        }
+
+                        ApplyDecorations(document, settings);
                         ApplyMetadata(document, settings);
                         ApplySecurity(document, settings);
                         document.Save(outputPath);
@@ -132,45 +147,99 @@ public class PdfConversionService
             try
             {
                 int perPage = (int)settings.ImagesPerPage;
-                int processed = 0;
+                var pendingImages = new List<ImageFileItem>();
 
-                for (int i = 0; i < items.Count; i += perPage)
+                void FlushPendingImages()
+                {
+                    while (pendingImages.Count > 0)
+                    {
+                        var chunk = pendingImages.Take(perPage).ToList();
+                        pendingImages.RemoveRange(0, chunk.Count);
+                        try
+                        {
+                            AddMultiImagePage(document, chunk, settings, disposables);
+                            foreach (var item in chunk)
+                            {
+                                item.Status = ConversionStatus.Fullført;
+                                item.ErrorMessage = null;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            foreach (var item in chunk)
+                            {
+                                item.Status = ConversionStatus.Feilet;
+                                item.ErrorMessage = ex.Message;
+                            }
+                        }
+                    }
+                }
+
+                for (int i = 0; i < items.Count; i++)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+                    var item = items[i];
+                    item.Status = ConversionStatus.Behandler;
 
-                    var chunk = items.Skip(i).Take(perPage).ToList();
-                    foreach (var item in chunk)
+                    if (item.IsPdf)
                     {
-                        item.Status = ConversionStatus.Behandler;
-                    }
-
-                    try
-                    {
-                        AddMultiImagePage(document, chunk, settings, disposables);
-                        foreach (var item in chunk)
+                        FlushPendingImages();
+                        try
                         {
+                            var inputDoc = PdfReader.Open(item.FilePath, PdfDocumentOpenMode.Import);
+                            disposables.Add(inputDoc);
+                            for (int p = 0; p < inputDoc.Pages.Count; p++)
+                            {
+                                document.AddPage(inputDoc.Pages[p]);
+                            }
                             item.Status = ConversionStatus.Fullført;
                             item.ErrorMessage = null;
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        foreach (var item in chunk)
+                        catch (Exception ex)
                         {
                             item.Status = ConversionStatus.Feilet;
                             item.ErrorMessage = ex.Message;
                         }
                     }
+                    else
+                    {
+                        pendingImages.Add(item);
+                        if (pendingImages.Count >= perPage)
+                        {
+                            var chunk = pendingImages.Take(perPage).ToList();
+                            pendingImages.RemoveRange(0, perPage);
+                            try
+                            {
+                                AddMultiImagePage(document, chunk, settings, disposables);
+                                foreach (var ci in chunk)
+                                {
+                                    ci.Status = ConversionStatus.Fullført;
+                                    ci.ErrorMessage = null;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                foreach (var ci in chunk)
+                                {
+                                    ci.Status = ConversionStatus.Feilet;
+                                    ci.ErrorMessage = ex.Message;
+                                }
+                            }
+                        }
+                    }
 
-                    processed += chunk.Count;
                     progress?.Report(new ConversionProgressReport(
-                        Math.Min(processed, total),
+                        i + 1,
                         total,
-                        chunk[^1].FileName,
-                        (double)processed / total * 100.0
+                        item.FileName,
+                        (double)(i + 1) / total * 100.0
                     ));
                 }
 
+                // Flush any remaining images
+                FlushPendingImages();
+
+                ApplyDecorations(document, settings);
                 ApplyMetadata(document, settings);
                 ApplySecurity(document, settings);
                 document.Save(outputPath);
@@ -199,8 +268,8 @@ public class PdfConversionService
             var item = items[0];
             var page = document.AddPage();
             var xImage = LoadImage(item, settings, disposables);
-            int rot = item.TotalRotation;
 
+            int rot = item.TotalRotation;
             if (rot == 90 || rot == 270)
             {
                 page.Width = XUnit.FromPoint(xImage.PointHeight);
@@ -213,33 +282,41 @@ public class PdfConversionService
             }
 
             using var gfx = XGraphics.FromPdfPage(page);
-            DrawImageInSlot(gfx, xImage, rot, 0, 0, page.Width.Point, page.Height.Point);
+            var state = gfx.Save();
+            if (rot != 0)
+            {
+                gfx.RotateAtTransform(rot, new XPoint(page.Width.Point / 2.0, page.Height.Point / 2.0));
+            }
+
+            double drawX = (page.Width.Point - xImage.PointWidth) / 2.0;
+            double drawY = (page.Height.Point - xImage.PointHeight) / 2.0;
+            gfx.DrawImage(xImage, drawX, drawY);
+            gfx.Restore(state);
             return;
         }
 
-        // Standard page size (A4 / Letter) or Multi-Image grid
+        // Standard Page setup (A4 or US Letter)
         var multiPage = document.AddPage();
-        multiPage.Size = settings.PageSizeMode == PageSizeMode.Letter_AutoOrientation ? PageSize.Letter : PageSize.A4;
+        multiPage.Size = settings.PageSizeMode switch
+        {
+            PageSizeMode.Letter_AutoOrientation => PageSize.Letter,
+            _ => PageSize.A4
+        };
 
-        // Determine orientation
-        if (settings.ImagesPerPage == ImagesPerPage.Two)
+        // For single image, adjust page orientation to match image aspect ratio
+        if (settings.ImagesPerPage == ImagesPerPage.One)
         {
-            // For 2 images, Portrait stacks vertically, Landscape side-by-side
-            multiPage.Orientation = PageOrientation.Portrait;
-        }
-        else if (settings.ImagesPerPage == ImagesPerPage.Four)
-        {
-            multiPage.Orientation = PageOrientation.Portrait;
+            var singleItem = items[0];
+            var testImage = LoadImage(singleItem, settings, disposables);
+            int rot = singleItem.TotalRotation;
+            double effW = (rot == 90 || rot == 270) ? testImage.PixelHeight : testImage.PixelWidth;
+            double effH = (rot == 90 || rot == 270) ? testImage.PixelWidth : testImage.PixelHeight;
+            multiPage.Orientation = effW > effH ? PageOrientation.Landscape : PageOrientation.Portrait;
         }
         else
         {
-            // 1 image per page auto-orientation
-            var firstItem = items[0];
-            var firstImg = LoadImage(firstItem, settings, disposables);
-            int r = firstItem.TotalRotation;
-            double effW = (r == 90 || r == 270) ? firstImg.PixelHeight : firstImg.PixelWidth;
-            double effH = (r == 90 || r == 270) ? firstImg.PixelWidth : firstImg.PixelHeight;
-            multiPage.Orientation = effW > effH ? PageOrientation.Landscape : PageOrientation.Portrait;
+            // For 2 images, landscape or portrait depending on layout; portrait is default standard
+            multiPage.Orientation = PageOrientation.Portrait;
         }
 
         double margin = settings.MarginMode switch
@@ -249,39 +326,42 @@ public class PdfConversionService
             _ => 28.35                     // 10 mm
         };
 
-        double availW = Math.Max(1.0, multiPage.Width.Point - (2 * margin));
-        double availH = Math.Max(1.0, multiPage.Height.Point - (2 * margin));
+        double pageWidth = multiPage.Width.Point;
+        double pageHeight = multiPage.Height.Point;
 
-        using var pageGfx = XGraphics.FromPdfPage(multiPage);
+        var slots = CalculateSlots(items.Count, pageWidth, pageHeight, margin);
 
-        var slots = CalculateSlots(items.Count, margin, availW, availH, multiPage.Orientation);
-
-        for (int i = 0; i < items.Count && i < slots.Count; i++)
+        using (var gfx = XGraphics.FromPdfPage(multiPage))
         {
-            var item = items[i];
-            var xImage = LoadImage(item, settings, disposables);
-            var (slotX, slotY, slotW, slotH) = slots[i];
-            DrawImageInSlot(pageGfx, xImage, item.TotalRotation, slotX, slotY, slotW, slotH);
+            for (int i = 0; i < items.Count && i < slots.Count; i++)
+            {
+                var item = items[i];
+                var xImage = LoadImage(item, settings, disposables);
+                var slot = slots[i];
+
+                DrawImageInSlot(gfx, xImage, item.TotalRotation, slot.X, slot.Y, slot.Width, slot.Height);
+            }
         }
     }
 
     private static List<(double X, double Y, double Width, double Height)> CalculateSlots(
         int count,
-        double margin,
-        double availW,
-        double availH,
-        PageOrientation orientation)
+        double pageWidth,
+        double pageHeight,
+        double margin)
     {
-        var slots = new List<(double X, double Y, double Width, double Height)>();
-        const double gap = 8.0;
+        var slots = new List<(double, double, double, double)>();
+        double availW = Math.Max(10, pageWidth - (margin * 2));
+        double availH = Math.Max(10, pageHeight - (margin * 2));
+        double gap = 14.0; // gap between images
 
-        if (count == 1)
+        if (count <= 1)
         {
             slots.Add((margin, margin, availW, availH));
         }
         else if (count == 2)
         {
-            if (orientation == PageOrientation.Portrait)
+            if (pageHeight >= pageWidth)
             {
                 // Top and bottom
                 double slotH = (availH - gap) / 2.0;
@@ -355,8 +435,10 @@ public class PdfConversionService
     {
         string ext = Path.GetExtension(item.FilePath).ToLowerInvariant();
         bool isStandardFormat = ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".bmp";
+        bool hasTransforms = settings.FilterMode != ImageFilterMode.Original || item.HasCrop;
 
-        if (isStandardFormat && settings.QualityMode == QualityMode.Lossless)
+        // Fast & 100% Lossless path for standard formats without crop/filters:
+        if (isStandardFormat && settings.QualityMode == QualityMode.Lossless && !hasTransforms)
         {
             try
             {
@@ -374,12 +456,56 @@ public class PdfConversionService
         var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
         BitmapSource source = decoder.Frames[0];
 
+        // 1. Apply Crop if specified
+        if (item.HasCrop)
+        {
+            int origW = source.PixelWidth;
+            int origH = source.PixelHeight;
+
+            int x = (int)Math.Round(origW * (item.CropLeft / 100.0));
+            int y = (int)Math.Round(origH * (item.CropTop / 100.0));
+            int w = origW - x - (int)Math.Round(origW * (item.CropRight / 100.0));
+            int h = origH - y - (int)Math.Round(origH * (item.CropBottom / 100.0));
+
+            w = Math.Clamp(w, 10, origW);
+            h = Math.Clamp(h, 10, origH);
+            x = Math.Clamp(x, 0, origW - w);
+            y = Math.Clamp(y, 0, origH - h);
+
+            source = new CroppedBitmap(source, new System.Windows.Int32Rect(x, y, w, h));
+        }
+
+        // 2. Apply Filters (Grayscale or Document B&W scan)
+        if (settings.FilterMode == ImageFilterMode.Grayscale)
+        {
+            source = new FormatConvertedBitmap(source, System.Windows.Media.PixelFormats.Gray8, null, 0);
+        }
+        else if (settings.FilterMode == ImageFilterMode.BlackAndWhite)
+        {
+            var gray = new FormatConvertedBitmap(source, System.Windows.Media.PixelFormats.Gray8, null, 0);
+            int w = gray.PixelWidth;
+            int h = gray.PixelHeight;
+            byte[] pixels = new byte[w * h];
+            gray.CopyPixels(pixels, w, 0);
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = pixels[i] > 135 ? (byte)255 : (byte)0;
+            }
+            source = BitmapSource.Create(w, h, gray.DpiX, gray.DpiY, System.Windows.Media.PixelFormats.Gray8, null, pixels, w);
+        }
+
         var ms = new MemoryStream();
         disposables.Add(ms);
 
-        if (settings.QualityMode == QualityMode.Compressed || ext == ".jpg" || ext == ".jpeg")
+        if (settings.FilterMode == ImageFilterMode.BlackAndWhite)
         {
-            int quality = settings.QualityMode == QualityMode.Compressed ? settings.JpegQuality : 100;
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(source));
+            encoder.Save(ms);
+        }
+        else if (settings.QualityMode == QualityMode.Compressed || ext == ".jpg" || ext == ".jpeg" || settings.FilterMode == ImageFilterMode.Grayscale)
+        {
+            int quality = settings.QualityMode == QualityMode.Compressed ? settings.JpegQuality : 95;
             var encoder = new JpegBitmapEncoder { QualityLevel = quality };
             encoder.Frames.Add(BitmapFrame.Create(source));
             encoder.Save(ms);
@@ -395,6 +521,57 @@ public class PdfConversionService
         var xImage = XImage.FromStream(ms);
         disposables.Add(xImage);
         return xImage;
+    }
+
+    private static void ApplyDecorations(PdfDocument document, ConversionSettings settings)
+    {
+        if (!settings.EnablePageNumbers && (!settings.EnableWatermark || string.IsNullOrWhiteSpace(settings.WatermarkText)))
+        {
+            return;
+        }
+
+        int totalPages = document.Pages.Count;
+        for (int p = 0; p < totalPages; p++)
+        {
+            var page = document.Pages[p];
+            using var gfx = XGraphics.FromPdfPage(page, XGraphicsPdfPageOptions.Append);
+
+            // Watermark
+            if (settings.EnableWatermark && !string.IsNullOrWhiteSpace(settings.WatermarkText))
+            {
+                var state = gfx.Save();
+                double cx = page.Width.Point / 2.0;
+                double cy = page.Height.Point / 2.0;
+                gfx.TranslateTransform(cx, cy);
+                gfx.RotateTransform(-40);
+
+                var wmFont = new XFont("Segoe UI", 42, XFontStyleEx.Bold);
+                var wmBrush = new XSolidBrush(XColor.FromArgb(40, 128, 128, 128));
+                var size = gfx.MeasureString(settings.WatermarkText.Trim(), wmFont);
+                gfx.DrawString(settings.WatermarkText.Trim(), wmFont, wmBrush, -size.Width / 2.0, size.Height / 3.0);
+                gfx.Restore(state);
+            }
+
+            // Page numbers
+            if (settings.EnablePageNumbers)
+            {
+                string fmt = string.IsNullOrWhiteSpace(settings.PageNumberFormat) ? "Side {0} av {1}" : settings.PageNumberFormat;
+                string text = string.Format(fmt, p + 1, totalPages);
+                var font = new XFont("Segoe UI", 9.5, XFontStyleEx.Regular);
+                var brush = new XSolidBrush(XColor.FromArgb(170, 70, 70, 70));
+
+                var size = gfx.MeasureString(text, font);
+                double y = page.Height.Point - 18.0;
+                double x = settings.PageNumberPosition switch
+                {
+                    PageNumberPosition.BottomLeft => 30.0,
+                    PageNumberPosition.BottomRight => page.Width.Point - size.Width - 30.0,
+                    _ => (page.Width.Point - size.Width) / 2.0
+                };
+
+                gfx.DrawString(text, font, brush, x, y);
+            }
+        }
     }
 
     private static void ApplyMetadata(PdfDocument document, ConversionSettings settings)
@@ -414,9 +591,7 @@ public class PdfConversionService
         {
             var security = document.SecuritySettings;
             security.UserPassword = settings.Password;
-            security.OwnerPassword = Guid.NewGuid().ToString("N");
-            security.PermitPrint = true;
-            security.PermitExtractContent = true;
+            security.OwnerPassword = settings.Password;
         }
     }
 }

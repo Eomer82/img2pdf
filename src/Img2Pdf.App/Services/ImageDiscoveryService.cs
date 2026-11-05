@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows.Media.Imaging;
 using Img2Pdf.App.Models;
+using PdfSharp.Pdf.IO;
 
 namespace Img2Pdf.App.Services;
 
@@ -14,10 +15,11 @@ public class ImageDiscoveryService
         ".bmp",
         ".webp",
         ".tiff",
-        ".tif"
+        ".tif",
+        ".pdf"
     };
 
-    public static bool IsSupportedImage(string filePath)
+    public static bool IsSupportedFile(string filePath)
     {
         var ext = Path.GetExtension(filePath);
         return !string.IsNullOrEmpty(ext) && SupportedExtensions.Contains(ext);
@@ -35,7 +37,7 @@ public class ImageDiscoveryService
 
                 if (File.Exists(path))
                 {
-                    if (IsSupportedImage(path))
+                    if (IsSupportedFile(path))
                     {
                         discoveredFiles.Add(Path.GetFullPath(path));
                     }
@@ -45,7 +47,7 @@ public class ImageDiscoveryService
                     try
                     {
                         var files = Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories)
-                            .Where(IsSupportedImage);
+                            .Where(IsSupportedFile);
 
                         foreach (var file in files)
                         {
@@ -80,7 +82,7 @@ public class ImageDiscoveryService
                         FileSizeBytes = fileInfo.Length
                     };
 
-                    InspectImageMetadata(item);
+                    InspectMetadata(item);
                     items.Add(item);
                 }
                 catch
@@ -93,8 +95,29 @@ public class ImageDiscoveryService
         return items;
     }
 
-    private static void InspectImageMetadata(ImageFileItem item)
+    private static void InspectMetadata(ImageFileItem item)
     {
+        string ext = Path.GetExtension(item.FilePath).ToLowerInvariant();
+
+        if (ext == ".pdf")
+        {
+            item.IsPdf = true;
+            try
+            {
+                using var doc = PdfReader.Open(item.FilePath, PdfDocumentOpenMode.InformationOnly);
+                int count = doc.PageCount;
+                item.Dimensions = count == 1 
+                    ? LocalizationService.GetString("PdfSinglePage") 
+                    : LocalizationService.GetString("PdfMultiPages", count);
+            }
+            catch
+            {
+                item.Dimensions = "PDF";
+            }
+            item.Thumbnail = null;
+            return;
+        }
+
         try
         {
             using var stream = new FileStream(item.FilePath, FileMode.Open, FileAccess.Read, FileShare.Read);

@@ -156,10 +156,25 @@ public class LocalizationService : INotifyPropertyChanged
             ["ClearList"] = "Clear list",
             ["QuickLook"] = "Preview",
             ["Close"] = "Close",
+            ["Crop"] = "Crop",
+            ["CropMode"] = "Crop & Trim",
+            ["ResetCrop"] = "Reset Crop",
+            ["CropTrimLeft"] = "Left %:",
+            ["CropTrimRight"] = "Right %:",
+            ["CropTrimTop"] = "Top %:",
+            ["CropTrimBottom"] = "Bottom %:",
+
+            // Presets
+            ["Card_Presets"] = "Quick Presets",
+            ["Preset_Standard"] = "Standard",
+            ["Preset_Receipts"] = "Receipts",
+            ["Preset_PhotoAlbum"] = "Photo Album",
+            ["Preset_Email"] = "Email",
+            ["Preset_DocScan"] = "Scan",
 
             // Empty drop area
             ["DropAreaTitle"] = "Drag and drop images or folders here",
-            ["DropAreaSubtitle"] = "Supports JPG, JPEG, PNG, BMP, WebP, and TIFF • 100% lossless original quality",
+            ["DropAreaSubtitle"] = "Supports JPG, JPEG, PNG, BMP, WebP, TIFF and PDF • 100% lossless original quality",
             ["ChooseFiles"] = "Select files...",
             ["ChooseFolder"] = "Select folder...",
 
@@ -170,12 +185,15 @@ public class LocalizationService : INotifyPropertyChanged
             ["Col_Status"] = "Status",
             ["Col_Folder"] = "Folder",
 
-            // Status badges
+            // Status badges & types
             ["Status_Waiting"] = "Waiting",
             ["Status_Processing"] = "Converting",
             ["Status_Completed"] = "Completed",
             ["Status_Failed"] = "Failed",
             ["Dimensions_Unknown"] = "Unknown",
+            ["PdfSinglePage"] = "1 page",
+            ["PdfMultiPages"] = "{0} pages",
+            ["PdfDocument"] = "PDF Document",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Conversion Mode",
@@ -183,6 +201,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["Mode_Merged"] = "Merge all into a single PDF",
             ["MergedFileName"] = "PDF File Name:",
             ["DefaultMergedFileName"] = "Images_Merged.pdf",
+
+            // Document Filters
+            ["Card_Filter"] = "Document Filters",
+            ["Filter_Original"] = "Color (Original)",
+            ["Filter_Grayscale"] = "Grayscale",
+            ["Filter_BlackAndWhite"] = "B&W Document Scan (High contrast)",
 
             // Quality & Compression
             ["Card_Quality"] = "Quality & Compression",
@@ -209,6 +233,13 @@ public class LocalizationService : INotifyPropertyChanged
             ["OnePerPage"] = "1 image per page (Standard)",
             ["TwoPerPage"] = "2 images per page (Side by side)",
             ["FourPerPage"] = "4 images per page (2x2 grid)",
+
+            // Page Numbers & Watermark
+            ["Card_Decorations"] = "Page Numbers & Watermark",
+            ["EnablePageNumbers"] = "Add page numbers",
+            ["PageNumberFormatLabel"] = "Format:",
+            ["EnableWatermark"] = "Add diagonal watermark",
+            ["WatermarkTextLabel"] = "Watermark text:",
 
             // Metadata
             ["Card_Metadata"] = "PDF Document Metadata",
@@ -240,7 +271,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["PluralSuffix"] = "s",
             ["ReadyToConvert"] = "Ready to convert",
             ["ImagesReady"] = "{0} images ready",
-            ["SearchingImages"] = "Scanning for image files...",
+            ["SearchingImages"] = "Scanning for files...",
             ["ErrorReadingFiles"] = "Error reading files: {0}",
             ["ConvertingProgress"] = "Converting {0} of {1}: {2}",
             ["CompletedInSeconds"] = "Completed in {0:F1} seconds!",
@@ -248,8 +279,8 @@ public class LocalizationService : INotifyPropertyChanged
             ["ConversionFailed"] = "Conversion error: {0}",
 
             // Dialogs
-            ["Dialog_SelectImagesTitle"] = "Select images to convert",
-            ["Dialog_ImageFilter"] = "Image files (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif|All files (*.*)|*.*",
+            ["Dialog_SelectImagesTitle"] = "Select images or PDFs to convert",
+            ["Dialog_ImageFilter"] = "Supported files (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.pdf)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif;*.pdf|All files (*.*)|*.*",
             ["Dialog_SelectFolderTitle"] = "Select folder containing images",
             ["Dialog_SelectOutputTitle"] = "Select destination folder for PDF files"
         };
@@ -265,7 +296,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["Language"] = "Språk",
 
             // Actions
-            ["AddFiles"] = "Legg til bilder",
+            ["AddFiles"] = "Legg til filer",
             ["AddFolder"] = "Legg til mappe",
             ["Rotate"] = "Roter 90°",
             ["MoveUp"] = "Flytt opp",
@@ -274,10 +305,25 @@ public class LocalizationService : INotifyPropertyChanged
             ["ClearList"] = "Tøm liste",
             ["QuickLook"] = "Forhåndsvisning",
             ["Close"] = "Lukk",
+            ["Crop"] = "Beskjær",
+            ["CropMode"] = "Beskjæring",
+            ["ResetCrop"] = "Nullstill beskjæring",
+            ["CropTrimLeft"] = "Venstre %:",
+            ["CropTrimRight"] = "Høyre %:",
+            ["CropTrimTop"] = "Topp %:",
+            ["CropTrimBottom"] = "Bunn %:",
+
+            // Presets
+            ["Card_Presets"] = "Hurtigprofiler",
+            ["Preset_Standard"] = "Standard",
+            ["Preset_Receipts"] = "Kvitteringer",
+            ["Preset_PhotoAlbum"] = "Fotoalbum",
+            ["Preset_Email"] = "E-post",
+            ["Preset_DocScan"] = "Skanning",
 
             // Empty drop area
-            ["DropAreaTitle"] = "Dra og slipp bilder eller mapper her",
-            ["DropAreaSubtitle"] = "Støtter JPG, JPEG, PNG, BMP, WebP og TIFF • Bevarer 100 % original kvalitet",
+            ["DropAreaTitle"] = "Dra og slipp bilder eller PDF-filer her",
+            ["DropAreaSubtitle"] = "Støtter JPG, PNG, BMP, WebP, TIFF og PDF • 100 % tapsfri original kvalitet",
             ["ChooseFiles"] = "Velg filer...",
             ["ChooseFolder"] = "Velg mappe...",
 
@@ -288,12 +334,15 @@ public class LocalizationService : INotifyPropertyChanged
             ["Col_Status"] = "Status",
             ["Col_Folder"] = "Mappe",
 
-            // Status badges
+            // Status badges & types
             ["Status_Waiting"] = "Venter",
             ["Status_Processing"] = "Behandler",
             ["Status_Completed"] = "Fullført",
             ["Status_Failed"] = "Feilet",
             ["Dimensions_Unknown"] = "Ukjent",
+            ["PdfSinglePage"] = "1 side",
+            ["PdfMultiPages"] = "{0} sider",
+            ["PdfDocument"] = "PDF-dokument",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Konverteringsmodus",
@@ -301,6 +350,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["Mode_Merged"] = "Slå sammen alle til én PDF",
             ["MergedFileName"] = "PDF-filnavn:",
             ["DefaultMergedFileName"] = "Bilder_Samlet.pdf",
+
+            // Document Filters
+            ["Card_Filter"] = "Bilde- & Dokumentfilter",
+            ["Filter_Original"] = "Farger (Original)",
+            ["Filter_Grayscale"] = "Gråtoner",
+            ["Filter_BlackAndWhite"] = "Svart-hvitt dokumentskann (Høy kontrast)",
 
             // Quality & Compression
             ["Card_Quality"] = "Bildekvalitet & Komprimering",
@@ -328,6 +383,13 @@ public class LocalizationService : INotifyPropertyChanged
             ["TwoPerPage"] = "2 bilder per side (To på arket)",
             ["FourPerPage"] = "4 bilder per side (2x2 rutenett)",
 
+            // Page Numbers & Watermark
+            ["Card_Decorations"] = "Sidetall & Vannmerke",
+            ["EnablePageNumbers"] = "Legg til sidetall",
+            ["PageNumberFormatLabel"] = "Format:",
+            ["EnableWatermark"] = "Legg til diagonalt vannmerke",
+            ["WatermarkTextLabel"] = "Vannmerketekst:",
+
             // Metadata
             ["Card_Metadata"] = "PDF-dokumentmetadata",
             ["DocTitle"] = "Dokumenttittel:",
@@ -353,12 +415,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["CancelConversion"] = "Avbryt konvertering",
 
             // Progress and summaries
-            ["NoImagesSelected"] = "Ingen bilder valgt",
-            ["ImagesCount"] = "{0} bilde{1} ({2})",
-            ["PluralSuffix"] = "r",
+            ["NoImagesSelected"] = "Ingen filer valgt",
+            ["ImagesCount"] = "{0} fil{1} ({2})",
+            ["PluralSuffix"] = "er",
             ["ReadyToConvert"] = "Klar til å konvertere",
-            ["ImagesReady"] = "{0} bilder klare",
-            ["SearchingImages"] = "Søker etter bildefiler...",
+            ["ImagesReady"] = "{0} filer klare",
+            ["SearchingImages"] = "Søker etter filer...",
             ["ErrorReadingFiles"] = "Feil ved lesing av filer: {0}",
             ["ConvertingProgress"] = "Konverterer {0} av {1}: {2}",
             ["CompletedInSeconds"] = "Fullført på {0:F1} sekunder!",
@@ -366,8 +428,8 @@ public class LocalizationService : INotifyPropertyChanged
             ["ConversionFailed"] = "Feil under konvertering: {0}",
 
             // Dialogs
-            ["Dialog_SelectImagesTitle"] = "Velg bilder som skal konverteres",
-            ["Dialog_ImageFilter"] = "Bildefiler (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif|Alle filer (*.*)|*.*",
+            ["Dialog_SelectImagesTitle"] = "Velg bilder eller PDF-filer som skal konverteres",
+            ["Dialog_ImageFilter"] = "Støttede filer (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.pdf)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif;*.pdf|Alle filer (*.*)|*.*",
             ["Dialog_SelectFolderTitle"] = "Velg mappe med bilder",
             ["Dialog_SelectOutputTitle"] = "Velg mappe for lagring av PDF-filer"
         };
@@ -383,7 +445,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["Language"] = "Sprache",
 
             // Actions
-            ["AddFiles"] = "Bilder hinzufügen",
+            ["AddFiles"] = "Dateien hinzufügen",
             ["AddFolder"] = "Ordner hinzufügen",
             ["Rotate"] = "90° drehen",
             ["MoveUp"] = "Nach oben",
@@ -392,10 +454,25 @@ public class LocalizationService : INotifyPropertyChanged
             ["ClearList"] = "Liste leeren",
             ["QuickLook"] = "Vorschau",
             ["Close"] = "Schließen",
+            ["Crop"] = "Zuschneiden",
+            ["CropMode"] = "Zuschnitt",
+            ["ResetCrop"] = "Zuschnitt zurücksetzen",
+            ["CropTrimLeft"] = "Links %:",
+            ["CropTrimRight"] = "Rechts %:",
+            ["CropTrimTop"] = "Oben %:",
+            ["CropTrimBottom"] = "Unten %:",
+
+            // Presets
+            ["Card_Presets"] = "Schnellprofile",
+            ["Preset_Standard"] = "Standard",
+            ["Preset_Receipts"] = "Belege",
+            ["Preset_PhotoAlbum"] = "Fotoalbum",
+            ["Preset_Email"] = "E-Mail",
+            ["Preset_DocScan"] = "Scan",
 
             // Empty drop area
-            ["DropAreaTitle"] = "Bilder oder Ordner hierher ziehen",
-            ["DropAreaSubtitle"] = "Unterstützt JPG, JPEG, PNG, BMP, WebP und TIFF • 100% verlustfreie Originalqualität",
+            ["DropAreaTitle"] = "Bilder oder PDF-Dateien hierher ziehen",
+            ["DropAreaSubtitle"] = "Unterstützt JPG, PNG, BMP, WebP, TIFF und PDF • 100% verlustfreie Originalqualität",
             ["ChooseFiles"] = "Dateien auswählen...",
             ["ChooseFolder"] = "Ordner auswählen...",
 
@@ -406,12 +483,15 @@ public class LocalizationService : INotifyPropertyChanged
             ["Col_Status"] = "Status",
             ["Col_Folder"] = "Ordner",
 
-            // Status badges
+            // Status badges & types
             ["Status_Waiting"] = "Wartet",
             ["Status_Processing"] = "Wird verarbeitet",
             ["Status_Completed"] = "Abgeschlossen",
             ["Status_Failed"] = "Fehlgeschlagen",
             ["Dimensions_Unknown"] = "Unbekannt",
+            ["PdfSinglePage"] = "1 Seite",
+            ["PdfMultiPages"] = "{0} Seiten",
+            ["PdfDocument"] = "PDF-Dokument",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Konvertierungsmodus",
@@ -419,6 +499,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["Mode_Merged"] = "Alle in eine PDF zusammenführen",
             ["MergedFileName"] = "PDF-Dateiname:",
             ["DefaultMergedFileName"] = "Bilder_Zusammengefuehrt.pdf",
+
+            // Document Filters
+            ["Card_Filter"] = "Bild- & Dokumentenfilter",
+            ["Filter_Original"] = "Farbe (Original)",
+            ["Filter_Grayscale"] = "Graustufen",
+            ["Filter_BlackAndWhite"] = "Schwarz-Weiß Dokumentenscan",
 
             // Quality & Compression
             ["Card_Quality"] = "Qualität & Komprimierung",
@@ -446,6 +532,13 @@ public class LocalizationService : INotifyPropertyChanged
             ["TwoPerPage"] = "2 Bilder pro Seite (Nebeneinander)",
             ["FourPerPage"] = "4 Bilder pro Seite (2x2 Raster)",
 
+            // Page Numbers & Watermark
+            ["Card_Decorations"] = "Seitenzahlen & Wasserzeichen",
+            ["EnablePageNumbers"] = "Seitenzahlen hinzufügen",
+            ["PageNumberFormatLabel"] = "Format:",
+            ["EnableWatermark"] = "Diagonales Wasserzeichen",
+            ["WatermarkTextLabel"] = "Wasserzeichen-Text:",
+
             // Metadata
             ["Card_Metadata"] = "PDF-Dokument-Metadaten",
             ["DocTitle"] = "Dokumenttitel:",
@@ -471,12 +564,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["CancelConversion"] = "Konvertierung abbrechen",
 
             // Progress and summaries
-            ["NoImagesSelected"] = "Keine Bilder ausgewählt",
-            ["ImagesCount"] = "{0} Bild{1} ({2})",
-            ["PluralSuffix"] = "er",
+            ["NoImagesSelected"] = "Keine Dateien ausgewählt",
+            ["ImagesCount"] = "{0} Datei{1} ({2})",
+            ["PluralSuffix"] = "en",
             ["ReadyToConvert"] = "Bereit zur Konvertierung",
-            ["ImagesReady"] = "{0} Bilder bereit",
-            ["SearchingImages"] = "Suche nach Bilddateien...",
+            ["ImagesReady"] = "{0} Dateien bereit",
+            ["SearchingImages"] = "Suche nach Dateien...",
             ["ErrorReadingFiles"] = "Fehler beim Lesen der Dateien: {0}",
             ["ConvertingProgress"] = "Konvertiere {0} von {1}: {2}",
             ["CompletedInSeconds"] = "Abgeschlossen in {0:F1} Sekunden!",
@@ -484,8 +577,8 @@ public class LocalizationService : INotifyPropertyChanged
             ["ConversionFailed"] = "Konvertierungsfehler: {0}",
 
             // Dialogs
-            ["Dialog_SelectImagesTitle"] = "Bilder zum Konvertieren auswählen",
-            ["Dialog_ImageFilter"] = "Bilddateien (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif|Alle Dateien (*.*)|*.*",
+            ["Dialog_SelectImagesTitle"] = "Bilder oder PDF-Dateien zum Konvertieren auswählen",
+            ["Dialog_ImageFilter"] = "Unterstützte Dateien (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.pdf)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif;*.pdf|Alle Dateien (*.*)|*.*",
             ["Dialog_SelectFolderTitle"] = "Ordner mit Bildern auswählen",
             ["Dialog_SelectOutputTitle"] = "Zielordner für PDF-Dateien auswählen"
         };
@@ -501,7 +594,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["Language"] = "Idioma",
 
             // Actions
-            ["AddFiles"] = "Añadir imágenes",
+            ["AddFiles"] = "Añadir archivos",
             ["AddFolder"] = "Añadir carpeta",
             ["Rotate"] = "Girar 90°",
             ["MoveUp"] = "Subir",
@@ -510,10 +603,25 @@ public class LocalizationService : INotifyPropertyChanged
             ["ClearList"] = "Limpiar lista",
             ["QuickLook"] = "Vista previa",
             ["Close"] = "Cerrar",
+            ["Crop"] = "Recortar",
+            ["CropMode"] = "Recorte",
+            ["ResetCrop"] = "Restablecer recorte",
+            ["CropTrimLeft"] = "Izquierda %:",
+            ["CropTrimRight"] = "Derecha %:",
+            ["CropTrimTop"] = "Arriba %:",
+            ["CropTrimBottom"] = "Abajo %:",
+
+            // Presets
+            ["Card_Presets"] = "Perfiles rápidos",
+            ["Preset_Standard"] = "Estándar",
+            ["Preset_Receipts"] = "Recibos",
+            ["Preset_PhotoAlbum"] = "Álbum de fotos",
+            ["Preset_Email"] = "Correo",
+            ["Preset_DocScan"] = "Escaneo",
 
             // Empty drop area
-            ["DropAreaTitle"] = "Arrastra y suelta imágenes o carpetas aquí",
-            ["DropAreaSubtitle"] = "Compatible con JPG, JPEG, PNG, BMP, WebP y TIFF • Calidad original 100% sin pérdidas",
+            ["DropAreaTitle"] = "Arrastra y suelta imágenes o archivos PDF aquí",
+            ["DropAreaSubtitle"] = "Compatible con JPG, PNG, BMP, WebP, TIFF y PDF • Calidad original 100% sin pérdidas",
             ["ChooseFiles"] = "Seleccionar archivos...",
             ["ChooseFolder"] = "Seleccionar carpeta...",
 
@@ -524,12 +632,15 @@ public class LocalizationService : INotifyPropertyChanged
             ["Col_Status"] = "Estado",
             ["Col_Folder"] = "Carpeta",
 
-            // Status badges
+            // Status badges & types
             ["Status_Waiting"] = "En espera",
             ["Status_Processing"] = "Procesando",
             ["Status_Completed"] = "Completado",
             ["Status_Failed"] = "Error",
             ["Dimensions_Unknown"] = "Desconocido",
+            ["PdfSinglePage"] = "1 página",
+            ["PdfMultiPages"] = "{0} páginas",
+            ["PdfDocument"] = "Documento PDF",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Modo de conversión",
@@ -537,6 +648,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["Mode_Merged"] = "Combinar todas en un solo PDF",
             ["MergedFileName"] = "Nombre del archivo PDF:",
             ["DefaultMergedFileName"] = "Imagenes_Combinadas.pdf",
+
+            // Document Filters
+            ["Card_Filter"] = "Filtros de documento",
+            ["Filter_Original"] = "Color (Original)",
+            ["Filter_Grayscale"] = "Escala de grises",
+            ["Filter_BlackAndWhite"] = "B&N Escaneo de documento",
 
             // Quality & Compression
             ["Card_Quality"] = "Calidad y compresión",
@@ -564,6 +681,13 @@ public class LocalizationService : INotifyPropertyChanged
             ["TwoPerPage"] = "2 imágenes por página (2 en 1)",
             ["FourPerPage"] = "4 imágenes por página (Cuadrícula 2x2)",
 
+            // Page Numbers & Watermark
+            ["Card_Decorations"] = "Números de página y marca de agua",
+            ["EnablePageNumbers"] = "Añadir números de página",
+            ["PageNumberFormatLabel"] = "Formato:",
+            ["EnableWatermark"] = "Marca de agua diagonal",
+            ["WatermarkTextLabel"] = "Texto de marca de agua:",
+
             // Metadata
             ["Card_Metadata"] = "Metadatos del PDF",
             ["DocTitle"] = "Título del documento:",
@@ -589,12 +713,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["CancelConversion"] = "Cancelar conversión",
 
             // Progress and summaries
-            ["NoImagesSelected"] = "No hay imágenes seleccionadas",
-            ["ImagesCount"] = "{0} imagen{1} ({2})",
-            ["PluralSuffix"] = "es",
+            ["NoImagesSelected"] = "No hay archivos seleccionados",
+            ["ImagesCount"] = "{0} archivo{1} ({2})",
+            ["PluralSuffix"] = "s",
             ["ReadyToConvert"] = "Listo para convertir",
-            ["ImagesReady"] = "{0} imágenes listas",
-            ["SearchingImages"] = "Buscando archivos de imagen...",
+            ["ImagesReady"] = "{0} archivos listos",
+            ["SearchingImages"] = "Buscando archivos...",
             ["ErrorReadingFiles"] = "Error al leer archivos: {0}",
             ["ConvertingProgress"] = "Convirtiendo {0} de {1}: {2}",
             ["CompletedInSeconds"] = "¡Completado en {0:F1} segundos!",
@@ -602,8 +726,8 @@ public class LocalizationService : INotifyPropertyChanged
             ["ConversionFailed"] = "Error de conversión: {0}",
 
             // Dialogs
-            ["Dialog_SelectImagesTitle"] = "Seleccionar imágenes para convertir",
-            ["Dialog_ImageFilter"] = "Archivos de imagen (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif|Todos los archivos (*.*)|*.*",
+            ["Dialog_SelectImagesTitle"] = "Seleccionar imágenes o archivos PDF para convertir",
+            ["Dialog_ImageFilter"] = "Archivos compatibles (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.pdf)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif;*.pdf|Todos los archivos (*.*)|*.*",
             ["Dialog_SelectFolderTitle"] = "Seleccionar carpeta con imágenes",
             ["Dialog_SelectOutputTitle"] = "Seleccionar carpeta de destino para archivos PDF"
         };

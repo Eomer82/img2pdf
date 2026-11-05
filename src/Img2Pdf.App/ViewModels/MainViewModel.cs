@@ -33,6 +33,9 @@ public partial class MainViewModel : ObservableObject
     private ImageSource? _previewImage;
 
     [ObservableProperty]
+    private bool _isCropModeActive;
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsIndividualMode))]
     [NotifyPropertyChangedFor(nameof(IsMergedMode))]
     private OutputMode _outputMode = OutputMode.IndividualPdfs;
@@ -123,6 +126,31 @@ public partial class MainViewModel : ObservableObject
         {
             if (value) ImagesPerPage = ImagesPerPage.Four;
         }
+    }
+
+    // Document Filters (Original, Grayscale, B&W Document Scan)
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsOriginalFilter))]
+    [NotifyPropertyChangedFor(nameof(IsGrayscaleFilter))]
+    [NotifyPropertyChangedFor(nameof(IsBlackAndWhiteFilter))]
+    private ImageFilterMode _filterMode = ImageFilterMode.Original;
+
+    public bool IsOriginalFilter
+    {
+        get => FilterMode == ImageFilterMode.Original;
+        set { if (value) FilterMode = ImageFilterMode.Original; }
+    }
+
+    public bool IsGrayscaleFilter
+    {
+        get => FilterMode == ImageFilterMode.Grayscale;
+        set { if (value) FilterMode = ImageFilterMode.Grayscale; }
+    }
+
+    public bool IsBlackAndWhiteFilter
+    {
+        get => FilterMode == ImageFilterMode.BlackAndWhite;
+        set { if (value) FilterMode = ImageFilterMode.BlackAndWhite; }
     }
 
     [ObservableProperty]
@@ -218,6 +246,19 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _password = string.Empty;
 
+    // Page Numbers & Watermark
+    [ObservableProperty]
+    private bool _enablePageNumbers;
+
+    [ObservableProperty]
+    private string _pageNumberFormat = "Side {0} av {1}";
+
+    [ObservableProperty]
+    private bool _enableWatermark;
+
+    [ObservableProperty]
+    private string _watermarkText = "DRAFT";
+
     // PDF Document Metadata
     [ObservableProperty]
     private string _documentTitle = string.Empty;
@@ -252,22 +293,11 @@ public partial class MainViewModel : ObservableObject
         _progressText = LocalizationService.GetString("ReadyToConvert");
         _statusSummary = LocalizationService.GetString("NoImagesSelected");
 
-        Files.CollectionChanged += (_, _) =>
-        {
-            HasFiles = Files.Count > 0;
-            UpdateStatusSummary();
-            OnPropertyChanged(nameof(CanConvert));
-        };
-
         LocalizationService.Instance.LanguageChanged += (_, _) =>
         {
+            OnPropertyChanged(nameof(StatusSummary));
+            OnPropertyChanged(nameof(ProgressText));
             UpdateStatusSummary();
-            if (!IsBusy)
-            {
-                ProgressText = Files.Count > 0
-                    ? LocalizationService.GetString("ImagesReady", Files.Count)
-                    : LocalizationService.GetString("ReadyToConvert");
-            }
             foreach (var file in Files)
             {
                 file.RefreshLocalization();
@@ -279,16 +309,23 @@ public partial class MainViewModel : ObservableObject
     {
         IsBusy = true;
         ProgressText = LocalizationService.GetString("SearchingImages");
+
         try
         {
-            var discovered = await ImageDiscoveryService.DiscoverImagesAsync(paths);
-            foreach (var item in discovered)
+            var items = await ImageDiscoveryService.DiscoverImagesAsync(paths);
+            foreach (var item in items)
             {
-                if (!Files.Any(f => string.Equals(f.FilePath, item.FilePath, StringComparison.OrdinalIgnoreCase)))
-                {
-                    Files.Add(item);
-                }
+                Files.Add(item);
             }
+
+            if (SelectedItem == null && Files.Count > 0)
+            {
+                SelectedItem = Files[0];
+            }
+
+            HasFiles = Files.Count > 0;
+            UpdateStatusSummary();
+            ProgressText = LocalizationService.GetString("ImagesReady", Files.Count);
         }
         catch (Exception ex)
         {
@@ -297,10 +334,6 @@ public partial class MainViewModel : ObservableObject
         finally
         {
             IsBusy = false;
-            ProgressText = Files.Count > 0 
-                ? LocalizationService.GetString("ImagesReady", Files.Count) 
-                : LocalizationService.GetString("ReadyToConvert");
-            UpdateStatusSummary();
         }
     }
 
@@ -313,8 +346,10 @@ public partial class MainViewModel : ObservableObject
         }
 
         long totalBytes = Files.Sum(f => f.FileSizeBytes);
-        string plural = Files.Count > 1 ? LocalizationService.GetString("PluralSuffix") : "";
-        StatusSummary = LocalizationService.GetString("ImagesCount", Files.Count, plural, ImageFileItem.FormatBytes(totalBytes));
+        string totalSize = ImageFileItem.FormatBytes(totalBytes);
+        string plural = Files.Count > 1 ? LocalizationService.GetString("PluralSuffix") : string.Empty;
+
+        StatusSummary = LocalizationService.GetString("ImagesCount", Files.Count, plural, totalSize);
     }
 
     [RelayCommand]
@@ -324,6 +359,8 @@ public partial class MainViewModel : ObservableObject
         {
             Files.Remove(SelectedItem);
             SelectedItem = Files.FirstOrDefault();
+            HasFiles = Files.Count > 0;
+            UpdateStatusSummary();
         }
     }
 
@@ -346,6 +383,7 @@ public partial class MainViewModel : ObservableObject
         {
             SelectedItem = target;
             PreviewItem = target;
+            IsCropModeActive = false;
             LoadPreviewImage(target);
             IsPreviewOpen = true;
         }
@@ -357,6 +395,23 @@ public partial class MainViewModel : ObservableObject
         IsPreviewOpen = false;
         PreviewItem = null;
         PreviewImage = null;
+        IsCropModeActive = false;
+    }
+
+    [RelayCommand]
+    public void ToggleCropMode()
+    {
+        IsCropModeActive = !IsCropModeActive;
+    }
+
+    [RelayCommand]
+    public void ResetCrop()
+    {
+        if (PreviewItem != null)
+        {
+            PreviewItem.ResetCrop();
+            OnPropertyChanged(nameof(PreviewItem));
+        }
     }
 
     [RelayCommand]
@@ -385,6 +440,12 @@ public partial class MainViewModel : ObservableObject
 
     private void LoadPreviewImage(ImageFileItem item)
     {
+        if (item.IsPdf)
+        {
+            PreviewImage = null;
+            return;
+        }
+
         try
         {
             var bmp = new BitmapImage();
@@ -404,12 +465,67 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public void ApplyPreset(string presetName)
+    {
+        switch (presetName?.ToLowerInvariant())
+        {
+            case "receipts":
+                PageSizeMode = PageSizeMode.A4_AutoOrientation;
+                MarginMode = PageMarginMode.Compact;
+                ImagesPerPage = ImagesPerPage.Two;
+                FilterMode = ImageFilterMode.Grayscale;
+                QualityMode = QualityMode.Compressed;
+                JpegQuality = 80;
+                OutputMode = OutputMode.MergedPdf;
+                break;
+
+            case "photoalbum":
+                PageSizeMode = PageSizeMode.OriginalImageSize;
+                MarginMode = PageMarginMode.None;
+                ImagesPerPage = ImagesPerPage.One;
+                FilterMode = ImageFilterMode.Original;
+                QualityMode = QualityMode.Lossless;
+                OutputMode = OutputMode.MergedPdf;
+                break;
+
+            case "email":
+                PageSizeMode = PageSizeMode.A4_AutoOrientation;
+                MarginMode = PageMarginMode.Compact;
+                ImagesPerPage = ImagesPerPage.One;
+                FilterMode = ImageFilterMode.Original;
+                QualityMode = QualityMode.Compressed;
+                JpegQuality = 75;
+                break;
+
+            case "documentscan":
+                PageSizeMode = PageSizeMode.A4_AutoOrientation;
+                MarginMode = PageMarginMode.Compact;
+                ImagesPerPage = ImagesPerPage.One;
+                FilterMode = ImageFilterMode.BlackAndWhite;
+                QualityMode = QualityMode.Compressed;
+                JpegQuality = 85;
+                OutputMode = OutputMode.MergedPdf;
+                break;
+
+            default: // Standard
+                PageSizeMode = PageSizeMode.OriginalImageSize;
+                MarginMode = PageMarginMode.Compact;
+                ImagesPerPage = ImagesPerPage.One;
+                FilterMode = ImageFilterMode.Original;
+                QualityMode = QualityMode.Lossless;
+                break;
+        }
+    }
+
+    [RelayCommand]
     private void ClearAll()
     {
         Files.Clear();
         SelectedItem = null;
+        HasFiles = false;
         ProgressValue = 0;
         ProgressText = LocalizationService.GetString("ReadyToConvert");
+        UpdateStatusSummary();
     }
 
     [RelayCommand]
@@ -420,7 +536,6 @@ public partial class MainViewModel : ObservableObject
         if (index > 0)
         {
             Files.Move(index, index - 1);
-            SelectedItem = Files[index - 1];
         }
     }
 
@@ -429,10 +544,9 @@ public partial class MainViewModel : ObservableObject
     {
         if (SelectedItem == null) return;
         int index = Files.IndexOf(SelectedItem);
-        if (index >= 0 && index < Files.Count - 1)
+        if (index < Files.Count - 1 && index >= 0)
         {
             Files.Move(index, index + 1);
-            SelectedItem = Files[index + 1];
         }
     }
 
@@ -483,6 +597,7 @@ public partial class MainViewModel : ObservableObject
             JpegQuality = JpegQuality,
             MarginMode = MarginMode,
             ImagesPerPage = ImagesPerPage,
+            FilterMode = FilterMode,
             MergedFileName = MergedFileName,
             UseCustomOutputFolder = UseCustomOutputFolder,
             CustomOutputFolder = CustomOutputFolder,
@@ -490,6 +605,10 @@ public partial class MainViewModel : ObservableObject
             OpenPdfWhenDone = OpenPdfWhenDone,
             EnablePasswordProtection = EnablePasswordProtection,
             Password = Password,
+            EnablePageNumbers = EnablePageNumbers,
+            PageNumberFormat = PageNumberFormat,
+            EnableWatermark = EnableWatermark,
+            WatermarkText = WatermarkText,
             DocumentTitle = DocumentTitle,
             DocumentAuthor = DocumentAuthor,
             DocumentSubject = DocumentSubject

@@ -33,6 +33,20 @@ public enum ImagesPerPage
     Four = 4   // 4 images per page (2x2 grid)
 }
 
+public enum ImageFilterMode
+{
+    Original,      // Standard color
+    Grayscale,     // Grayscale
+    BlackAndWhite  // High-contrast B&W document scan
+}
+
+public enum PageNumberPosition
+{
+    BottomCenter,
+    BottomRight,
+    BottomLeft
+}
+
 public class ConversionSettings
 {
     public OutputMode OutputMode { get; set; } = OutputMode.IndividualPdfs;
@@ -41,6 +55,7 @@ public class ConversionSettings
     public int JpegQuality { get; set; } = 80;
     public PageMarginMode MarginMode { get; set; } = PageMarginMode.Compact;
     public ImagesPerPage ImagesPerPage { get; set; } = ImagesPerPage.One;
+    public ImageFilterMode FilterMode { get; set; } = ImageFilterMode.Original;
     public string MergedFileName { get; set; } = "Images_Merged.pdf";
     public bool UseCustomOutputFolder { get; set; } = false;
     public string? CustomOutputFolder { get; set; }
@@ -48,6 +63,13 @@ public class ConversionSettings
     public bool OpenPdfWhenDone { get; set; } = false;
     public bool EnablePasswordProtection { get; set; } = false;
     public string? Password { get; set; }
+
+    // Page Numbers & Watermark
+    public bool EnablePageNumbers { get; set; } = false;
+    public string PageNumberFormat { get; set; } = "Side {0} av {1}";
+    public PageNumberPosition PageNumberPosition { get; set; } = PageNumberPosition.BottomCenter;
+    public bool EnableWatermark { get; set; } = false;
+    public string WatermarkText { get; set; } = "DRAFT";
 
     // PDF Metadata
     public string? DocumentTitle { get; set; }
