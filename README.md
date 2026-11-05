@@ -5,19 +5,31 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D4.svg)](https://microsoft.com/windows)
 [![.NET](https://img.shields.io/badge/.NET-10.0%20%7C%209.0%20%7C%208.0-512BD4.svg)](https://dotnet.microsoft.com/)
 
-A modern, fast, and lightweight Windows desktop application for lossless conversion of **JPG**, **PNG**, **BMP**, **WebP**, and **TIFF** images into high-quality PDF files. Built with **.NET** and **WPF** featuring native **Windows 11 Fluent Design (Mica effect)**, dark mode, live thumbnail previews, and built-in multi-language localization.
+A modern, fast, and lightweight Windows desktop application for lossless conversion of **JPG**, **PNG**, **BMP**, **WebP**, and **TIFF** images into high-quality PDF files. Built with **.NET** and **WPF** featuring native **Windows 11 Fluent Design (Mica effect)**, dark mode, live thumbnail previews, drag-and-drop reordering, Quick Look preview overlay, multi-image grids (N-Up), PDF metadata editing, and built-in multi-language localization.
 
 ---
 
-## ✨ Features
+## ✨ Features (v1.2.0)
 
 - 🚀 **Broad Image Format Support:**
   - **JPG / JPEG:** Embedded directly into the PDF's `DCTDecode` stream without re-compression. Zero loss of sharpness, metadata, or color accuracy.
   - **PNG & BMP:** Losslessly compressed using `FlateDecode` (Deflate/ZIP) streams.
   - **WebP & TIFF / TIF:** Full support for modern web imagery and multi-page scanned documents.
+- 🔀 **Drag-and-Drop Row Reordering:**
+  - Intuitively click and drag rows up or down in the file list to reorder pages in your merged PDF.
+- 🔍 **Full-Size "Quick Look" Image Preview Overlay:**
+  - Double-click any image or tap the **Space** bar to launch an instant full-screen preview modal with dark backdrop.
+  - Flip between images with Left / Right arrow keys, rotate with **R**, and close with **Esc** or **Space**.
+  - Displays real-time resolution, file size, and current rotation angle.
+- 📑 **Multiple Images per Page (N-Up / Receipt Mode):**
+  - Arrange **1, 2, or 4 images per page** in a balanced grid layout (2x2) with proportional scaling. Ideal for receipts, document scans, photos, and photo-albums.
+- 📝 **PDF Document Metadata:**
+  - Embed custom **Document Title**, **Author**, and **Subject / Topic** directly into the generated PDF's standard document info dictionary.
+- 📄 **Direct PDF Open Option:**
+  - Automatically launch the newly generated PDF file in your default PDF reader immediately upon conversion completion.
 - 🔄 **Smart Orientation & Live Rotation:**
   - **Automatic EXIF Orientation:** Phone camera photos (iPhone / Android) are automatically detected and oriented right-side-up.
-  - **Manual 90° Rotation:** Rotate any selected image on-the-fly with live visual preview in the file list.
+  - **Manual 90° Rotation:** Rotate any selected image on-the-fly with live visual preview in the file list and preview modal.
 - 🖼️ **Live Thumbnail Previews:**
   - Smooth asynchronous thumbnail generation with rounded corners and real-time rotation in the queue.
 - 📊 **Interactive Column Sorting:**
@@ -38,12 +50,10 @@ A modern, fast, and lightweight Windows desktop application for lossless convers
 - 🔒 **Security & Encryption:**
   - Optional AES password protection to safeguard sensitive scans and documents.
 - 🌐 **Multi-Language Support (i18n):**
-  - Switch on-the-fly between **English (🇬🇧)** and **Norwegian (🇳🇴)** directly from the title bar.
-  - Easily extensible architecture for adding new languages.
+  - Switch on-the-fly between **English (🇬🇧)**, **Norsk (🇳🇴)**, **Deutsch (🇩🇪)**, and **Español (🇪🇸)** directly from the title bar.
 - 🎨 **Modern Windows 11 Fluent UI:**
   - Native Mica backdrop effect, rounded geometry, and full Dark / Light mode toggle.
-  - Lightweight resource footprint (typically under 50–70 MB RAM).
-  - Multithreaded parallel processing (`Parallel.ForEachAsync`) ensuring the interface stays completely responsive.
+  - Lightweight resource footprint and non-blocking parallel processing.
 
 ---
 
@@ -82,16 +92,16 @@ All native DirectX/WPF libraries (`wpfgfx_cor3.dll`, etc.) are bundled inside, a
 
 ---
 
-## 🇳🇴 Norsk Sammendrag (v1.1.0)
+## 🇳🇴 Norsk Sammendrag (v1.2.0)
 
-Img2Pdf er et raskt og moderne Windows-verktøy for å konvertere bilder (**JPG, PNG, BMP, WebP og TIFF**) til PDF. Appen støtter:
-- Både separate PDF-er og sammenslåing til ett flersidig dokument.
-- Automatisk EXIF-retningskorrigering og manuell 90°-rotasjon med direkte miniatyrbilde-forhåndsvisning.
-- Klikk for å sortere kolonner etter filnavn, oppløsning, størrelse eller status.
-- Valgfri komprimering (100 % tapsfri vs. e-postkomprimering med kvalitetsslider).
-- Tilpasset sideoppsett (1:1 original, A4 og Letter med 0, 10 eller 20 mm marger).
-- Passordkryptering og full Windows 11 Mica / mørk modus.
-- Sømløs veksling mellom norsk og engelsk direkte i tittellinjen.
+Img2Pdf er et raskt og moderne Windows-verktøy for å konvertere bilder (**JPG, PNG, BMP, WebP og TIFF**) til PDF. Nyheter i versjon 1.2.0:
+- **Dra og slipp-sortering:** Dra elementer direkte i listen for å endre rekkefølge på PDF-sidene.
+- **Fullskjerms Hurtigvisning (Quick Look):** Dobbeltklikk eller trykk Mellomrom for å forhåndsvise bildet i full størrelse med mørk bakgrunn, piltaster for å bla, og R for å rotere.
+- **Flere bilder per side:** Plasser 1, 2 eller 4 bilder per side (2x2 rutenett / kvitteringsmodus).
+- **PDF-metadata:** Legg inn tittel, forfatter og emne/beskrivelse direkte i PDF-dokumentet.
+- **Åpne PDF direkte:** Valg om å åpne den ferdige PDF-filen umiddelbart i din standard PDF-leser.
+- **Flerspråklig støtte:** Nå med støtte for **Norsk (🇳🇴)**, **Engelsk (🇬🇧)**, **Tysk (🇩🇪)** og **Spansk (🇪🇸)**.
+- **Kamerabilder og EXIF-støtte:** Full støtte for store mobilbilder (50+ MP) med tapsfri rotering og minneoptimalisering.
 
 ---
 

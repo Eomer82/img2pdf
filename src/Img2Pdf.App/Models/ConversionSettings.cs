@@ -26,6 +26,13 @@ public enum PageMarginMode
     Normal     // 20 mm
 }
 
+public enum ImagesPerPage
+{
+    One = 1,   // 1 image per page (Standard)
+    Two = 2,   // 2 images per page (Top / Bottom or Side-by-side)
+    Four = 4   // 4 images per page (2x2 grid)
+}
+
 public class ConversionSettings
 {
     public OutputMode OutputMode { get; set; } = OutputMode.IndividualPdfs;
@@ -33,10 +40,17 @@ public class ConversionSettings
     public QualityMode QualityMode { get; set; } = QualityMode.Lossless;
     public int JpegQuality { get; set; } = 80;
     public PageMarginMode MarginMode { get; set; } = PageMarginMode.Compact;
+    public ImagesPerPage ImagesPerPage { get; set; } = ImagesPerPage.One;
     public string MergedFileName { get; set; } = "Images_Merged.pdf";
     public bool UseCustomOutputFolder { get; set; } = false;
     public string? CustomOutputFolder { get; set; }
     public bool OpenFolderWhenDone { get; set; } = true;
+    public bool OpenPdfWhenDone { get; set; } = false;
     public bool EnablePasswordProtection { get; set; } = false;
     public string? Password { get; set; }
+
+    // PDF Metadata
+    public string? DocumentTitle { get; set; }
+    public string? DocumentAuthor { get; set; }
+    public string? DocumentSubject { get; set; }
 }

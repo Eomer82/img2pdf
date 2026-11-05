@@ -22,7 +22,9 @@ public class LocalizationService : INotifyPropertyChanged
     public IReadOnlyList<LanguageInfo> SupportedLanguages { get; } = new List<LanguageInfo>
     {
         new("en", "English", "English", "🇬🇧"),
-        new("nb", "Norsk", "Norwegian", "🇳🇴")
+        new("nb", "Norsk", "Norwegian", "🇳🇴"),
+        new("de", "Deutsch", "German", "🇩🇪"),
+        new("es", "Español", "Spanish", "🇪🇸")
     };
 
     private LanguageInfo _currentLanguage;
@@ -56,7 +58,9 @@ public class LocalizationService : INotifyPropertyChanged
         if (string.IsNullOrWhiteSpace(savedCode))
         {
             string sysLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToLowerInvariant();
-            savedCode = (sysLang == "nb" || sysLang == "no" || sysLang == "nn") ? "nb" : "en";
+            savedCode = (sysLang == "nb" || sysLang == "no" || sysLang == "nn") ? "nb" :
+                        (sysLang == "de") ? "de" :
+                        (sysLang == "es") ? "es" : "en";
         }
 
         _currentLanguage = SupportedLanguages.FirstOrDefault(l => l.Code.Equals(savedCode, StringComparison.OrdinalIgnoreCase)) 
@@ -150,6 +154,8 @@ public class LocalizationService : INotifyPropertyChanged
             ["MoveDown"] = "Move down",
             ["Remove"] = "Remove",
             ["ClearList"] = "Clear list",
+            ["QuickLook"] = "Preview",
+            ["Close"] = "Close",
 
             // Empty drop area
             ["DropAreaTitle"] = "Drag and drop images or folders here",
@@ -198,12 +204,25 @@ public class LocalizationService : INotifyPropertyChanged
             ["Margin_Compact"] = "10 mm (Compact margin)",
             ["Margin_Normal"] = "20 mm (Standard document margin)",
 
+            // Multi-image per page
+            ["ImagesPerPage"] = "Images per page:",
+            ["OnePerPage"] = "1 image per page (Standard)",
+            ["TwoPerPage"] = "2 images per page (Side by side)",
+            ["FourPerPage"] = "4 images per page (2x2 grid)",
+
+            // Metadata
+            ["Card_Metadata"] = "PDF Document Metadata",
+            ["DocTitle"] = "Document Title:",
+            ["DocAuthor"] = "Author:",
+            ["DocSubject"] = "Subject / Topic:",
+
             // Output folder
             ["Card_OutputFolder"] = "Output Destination",
             ["Output_Source"] = "Same folder as source image",
             ["Output_Custom"] = "Specific folder",
             ["Browse"] = "Browse...",
             ["OpenWhenDone"] = "Open folder when conversion completes",
+            ["OpenPdfWhenDone"] = "Open PDF directly when conversion completes",
 
             // Security
             ["Card_Security"] = "Security & Encryption",
@@ -253,6 +272,8 @@ public class LocalizationService : INotifyPropertyChanged
             ["MoveDown"] = "Flytt ned",
             ["Remove"] = "Fjern",
             ["ClearList"] = "Tøm liste",
+            ["QuickLook"] = "Forhåndsvisning",
+            ["Close"] = "Lukk",
 
             // Empty drop area
             ["DropAreaTitle"] = "Dra og slipp bilder eller mapper her",
@@ -301,12 +322,25 @@ public class LocalizationService : INotifyPropertyChanged
             ["Margin_Compact"] = "10 mm (Kompakt marg)",
             ["Margin_Normal"] = "20 mm (Normal dokumentmarg)",
 
+            // Multi-image per page
+            ["ImagesPerPage"] = "Bilder per side:",
+            ["OnePerPage"] = "1 bilde per side (Standard)",
+            ["TwoPerPage"] = "2 bilder per side (To på arket)",
+            ["FourPerPage"] = "4 bilder per side (2x2 rutenett)",
+
+            // Metadata
+            ["Card_Metadata"] = "PDF-dokumentmetadata",
+            ["DocTitle"] = "Dokumenttittel:",
+            ["DocAuthor"] = "Forfatter:",
+            ["DocSubject"] = "Emne / Tema:",
+
             // Output folder
             ["Card_OutputFolder"] = "Mappe for ferdige filer",
             ["Output_Source"] = "Samme mappe som kildefil",
             ["Output_Custom"] = "Spesifikk mappe",
             ["Browse"] = "Bla...",
             ["OpenWhenDone"] = "Åpne mappen når konvertering er ferdig",
+            ["OpenPdfWhenDone"] = "Åpne PDF direkte når konvertering er ferdig",
 
             // Security
             ["Card_Security"] = "Sikkerhet & Passord",
@@ -336,6 +370,242 @@ public class LocalizationService : INotifyPropertyChanged
             ["Dialog_ImageFilter"] = "Bildefiler (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif|Alle filer (*.*)|*.*",
             ["Dialog_SelectFolderTitle"] = "Velg mappe med bilder",
             ["Dialog_SelectOutputTitle"] = "Velg mappe for lagring av PDF-filer"
+        };
+
+        // -------------------------------------------------------------
+        // GERMAN (Deutsch 🇩🇪)
+        // -------------------------------------------------------------
+        _translations["de"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["AppTitle"] = "Img2Pdf - Bild zu PDF Konverter",
+            ["AppHeaderTitle"] = "Img2Pdf • Hochwertiger Bildkonverter",
+            ["ThemeToggle"] = "Design",
+            ["Language"] = "Sprache",
+
+            // Actions
+            ["AddFiles"] = "Bilder hinzufügen",
+            ["AddFolder"] = "Ordner hinzufügen",
+            ["Rotate"] = "90° drehen",
+            ["MoveUp"] = "Nach oben",
+            ["MoveDown"] = "Nach unten",
+            ["Remove"] = "Entfernen",
+            ["ClearList"] = "Liste leeren",
+            ["QuickLook"] = "Vorschau",
+            ["Close"] = "Schließen",
+
+            // Empty drop area
+            ["DropAreaTitle"] = "Bilder oder Ordner hierher ziehen",
+            ["DropAreaSubtitle"] = "Unterstützt JPG, JPEG, PNG, BMP, WebP und TIFF • 100% verlustfreie Originalqualität",
+            ["ChooseFiles"] = "Dateien auswählen...",
+            ["ChooseFolder"] = "Ordner auswählen...",
+
+            // Table headers
+            ["Col_FileName"] = "Dateiname",
+            ["Col_Dimensions"] = "Auflösung",
+            ["Col_Size"] = "Größe",
+            ["Col_Status"] = "Status",
+            ["Col_Folder"] = "Ordner",
+
+            // Status badges
+            ["Status_Waiting"] = "Wartet",
+            ["Status_Processing"] = "Wird verarbeitet",
+            ["Status_Completed"] = "Abgeschlossen",
+            ["Status_Failed"] = "Fehlgeschlagen",
+            ["Dimensions_Unknown"] = "Unbekannt",
+
+            // Conversion mode
+            ["Card_ModeTitle"] = "Konvertierungsmodus",
+            ["Mode_Individual"] = "Eine PDF pro Bild (Separat)",
+            ["Mode_Merged"] = "Alle in eine PDF zusammenführen",
+            ["MergedFileName"] = "PDF-Dateiname:",
+            ["DefaultMergedFileName"] = "Bilder_Zusammengefuehrt.pdf",
+
+            // Quality & Compression
+            ["Card_Quality"] = "Qualität & Komprimierung",
+            ["Quality_Lossless"] = "100% Verlustfrei (Originalqualität)",
+            ["Quality_LosslessDesc"] = "Erhält die exakten Originalbilddaten ohne Qualitätsverlust.",
+            ["Quality_Compressed"] = "Für E-Mail / Web optimiert (JPEG)",
+            ["Quality_CompressedDesc"] = "Komprimiert Bilder für deutlich geringere Dateigröße.",
+            ["CompressionLevel"] = "JPEG-Qualität:",
+
+            // Page setup & Margins
+            ["Card_PageSetup"] = "Seitenlayout & Ränder",
+            ["Size_Original"] = "Original-Bildgröße (1:1)",
+            ["Size_OriginalDesc"] = "Jede Seite entspricht exakt den Abmessungen des Bildes ohne Ränder.",
+            ["Size_A4"] = "An A4 anpassen (Auto Hoch-/Querformat)",
+            ["Size_A4Desc"] = "Skaliert das Bild proportional auf eine Standard-A4-Seite.",
+            ["Size_Letter"] = "An US Letter anpassen",
+            ["Section_Margins"] = "Seitenränder:",
+            ["Margin_None"] = "0 mm (Randlos)",
+            ["Margin_Compact"] = "10 mm (Kompakter Rand)",
+            ["Margin_Normal"] = "20 mm (Standard-Dokumentenrand)",
+
+            // Multi-image per page
+            ["ImagesPerPage"] = "Bilder pro Seite:",
+            ["OnePerPage"] = "1 Bild pro Seite (Standard)",
+            ["TwoPerPage"] = "2 Bilder pro Seite (Nebeneinander)",
+            ["FourPerPage"] = "4 Bilder pro Seite (2x2 Raster)",
+
+            // Metadata
+            ["Card_Metadata"] = "PDF-Dokument-Metadaten",
+            ["DocTitle"] = "Dokumenttitel:",
+            ["DocAuthor"] = "Autor:",
+            ["DocSubject"] = "Thema / Betreff:",
+
+            // Output folder
+            ["Card_OutputFolder"] = "Ausgabeordner",
+            ["Output_Source"] = "Gleicher Ordner wie Quelldatei",
+            ["Output_Custom"] = "Benutzerdefinierter Ordner",
+            ["Browse"] = "Durchsuchen...",
+            ["OpenWhenDone"] = "Ordner nach Fertigstellung öffnen",
+            ["OpenPdfWhenDone"] = "PDF direkt nach Fertigstellung öffnen",
+
+            // Security
+            ["Card_Security"] = "Sicherheit & Passwort",
+            ["Security_Enable"] = "PDF mit Passwort schützen",
+            ["Security_PasswordLabel"] = "Passwort zum Öffnen der PDF:",
+            ["Security_Desc"] = "Verschlüsselt die Datei(en), sodass ein Passwort erforderlich ist.",
+
+            // Action buttons
+            ["StartConversion"] = "Konvertierung starten",
+            ["CancelConversion"] = "Konvertierung abbrechen",
+
+            // Progress and summaries
+            ["NoImagesSelected"] = "Keine Bilder ausgewählt",
+            ["ImagesCount"] = "{0} Bild{1} ({2})",
+            ["PluralSuffix"] = "er",
+            ["ReadyToConvert"] = "Bereit zur Konvertierung",
+            ["ImagesReady"] = "{0} Bilder bereit",
+            ["SearchingImages"] = "Suche nach Bilddateien...",
+            ["ErrorReadingFiles"] = "Fehler beim Lesen der Dateien: {0}",
+            ["ConvertingProgress"] = "Konvertiere {0} von {1}: {2}",
+            ["CompletedInSeconds"] = "Abgeschlossen in {0:F1} Sekunden!",
+            ["ConversionCancelled"] = "Konvertierung vom Benutzer abgebrochen.",
+            ["ConversionFailed"] = "Konvertierungsfehler: {0}",
+
+            // Dialogs
+            ["Dialog_SelectImagesTitle"] = "Bilder zum Konvertieren auswählen",
+            ["Dialog_ImageFilter"] = "Bilddateien (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif|Alle Dateien (*.*)|*.*",
+            ["Dialog_SelectFolderTitle"] = "Ordner mit Bildern auswählen",
+            ["Dialog_SelectOutputTitle"] = "Zielordner für PDF-Dateien auswählen"
+        };
+
+        // -------------------------------------------------------------
+        // SPANISH (Español 🇪🇸)
+        // -------------------------------------------------------------
+        _translations["es"] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["AppTitle"] = "Img2Pdf - Conversor de Imagen a PDF",
+            ["AppHeaderTitle"] = "Img2Pdf • Conversor de imágenes de alta calidad",
+            ["ThemeToggle"] = "Tema",
+            ["Language"] = "Idioma",
+
+            // Actions
+            ["AddFiles"] = "Añadir imágenes",
+            ["AddFolder"] = "Añadir carpeta",
+            ["Rotate"] = "Girar 90°",
+            ["MoveUp"] = "Subir",
+            ["MoveDown"] = "Bajar",
+            ["Remove"] = "Eliminar",
+            ["ClearList"] = "Limpiar lista",
+            ["QuickLook"] = "Vista previa",
+            ["Close"] = "Cerrar",
+
+            // Empty drop area
+            ["DropAreaTitle"] = "Arrastra y suelta imágenes o carpetas aquí",
+            ["DropAreaSubtitle"] = "Compatible con JPG, JPEG, PNG, BMP, WebP y TIFF • Calidad original 100% sin pérdidas",
+            ["ChooseFiles"] = "Seleccionar archivos...",
+            ["ChooseFolder"] = "Seleccionar carpeta...",
+
+            // Table headers
+            ["Col_FileName"] = "Nombre de archivo",
+            ["Col_Dimensions"] = "Resolución",
+            ["Col_Size"] = "Tamaño",
+            ["Col_Status"] = "Estado",
+            ["Col_Folder"] = "Carpeta",
+
+            // Status badges
+            ["Status_Waiting"] = "En espera",
+            ["Status_Processing"] = "Procesando",
+            ["Status_Completed"] = "Completado",
+            ["Status_Failed"] = "Error",
+            ["Dimensions_Unknown"] = "Desconocido",
+
+            // Conversion mode
+            ["Card_ModeTitle"] = "Modo de conversión",
+            ["Mode_Individual"] = "Un PDF por imagen (Separados)",
+            ["Mode_Merged"] = "Combinar todas en un solo PDF",
+            ["MergedFileName"] = "Nombre del archivo PDF:",
+            ["DefaultMergedFileName"] = "Imagenes_Combinadas.pdf",
+
+            // Quality & Compression
+            ["Card_Quality"] = "Calidad y compresión",
+            ["Quality_Lossless"] = "100% Sin pérdidas (Calidad original)",
+            ["Quality_LosslessDesc"] = "Conserva los datos exactos de la imagen original sin pérdida de calidad.",
+            ["Quality_Compressed"] = "Optimizado para correo/web (JPEG)",
+            ["Quality_CompressedDesc"] = "Comprime las imágenes para un tamaño de archivo mucho menor.",
+            ["CompressionLevel"] = "Calidad JPEG:",
+
+            // Page setup & Margins
+            ["Card_PageSetup"] = "Diseño de página y márgenes",
+            ["Size_Original"] = "Tamaño original de imagen (1:1)",
+            ["Size_OriginalDesc"] = "Cada página coincide con las dimensiones exactas de la imagen sin bordes.",
+            ["Size_A4"] = "Ajustar a A4 (Auto vertical/horizontal)",
+            ["Size_A4Desc"] = "Escala la imagen proporcionalmente a una hoja A4 estándar.",
+            ["Size_Letter"] = "Ajustar a US Letter",
+            ["Section_Margins"] = "Márgenes de página:",
+            ["Margin_None"] = "0 mm (Sin bordes)",
+            ["Margin_Compact"] = "10 mm (Margen compacto)",
+            ["Margin_Normal"] = "20 mm (Margen estándar)",
+
+            // Multi-image per page
+            ["ImagesPerPage"] = "Imágenes por página:",
+            ["OnePerPage"] = "1 imagen por página (Estándar)",
+            ["TwoPerPage"] = "2 imágenes por página (2 en 1)",
+            ["FourPerPage"] = "4 imágenes por página (Cuadrícula 2x2)",
+
+            // Metadata
+            ["Card_Metadata"] = "Metadatos del PDF",
+            ["DocTitle"] = "Título del documento:",
+            ["DocAuthor"] = "Autor:",
+            ["DocSubject"] = "Asunto / Tema:",
+
+            // Output folder
+            ["Card_OutputFolder"] = "Destino de salida",
+            ["Output_Source"] = "Misma carpeta que la imagen de origen",
+            ["Output_Custom"] = "Carpeta específica",
+            ["Browse"] = "Examinar...",
+            ["OpenWhenDone"] = "Abrir carpeta al completar",
+            ["OpenPdfWhenDone"] = "Abrir el PDF directamente al finalizar",
+
+            // Security
+            ["Card_Security"] = "Seguridad y contraseña",
+            ["Security_Enable"] = "Proteger PDF con contraseña",
+            ["Security_PasswordLabel"] = "Contraseña para abrir el PDF:",
+            ["Security_Desc"] = "Cifra el archivo para que se requiera contraseña para abrirlo.",
+
+            // Action buttons
+            ["StartConversion"] = "Iniciar conversión",
+            ["CancelConversion"] = "Cancelar conversión",
+
+            // Progress and summaries
+            ["NoImagesSelected"] = "No hay imágenes seleccionadas",
+            ["ImagesCount"] = "{0} imagen{1} ({2})",
+            ["PluralSuffix"] = "es",
+            ["ReadyToConvert"] = "Listo para convertir",
+            ["ImagesReady"] = "{0} imágenes listas",
+            ["SearchingImages"] = "Buscando archivos de imagen...",
+            ["ErrorReadingFiles"] = "Error al leer archivos: {0}",
+            ["ConvertingProgress"] = "Convirtiendo {0} de {1}: {2}",
+            ["CompletedInSeconds"] = "¡Completado en {0:F1} segundos!",
+            ["ConversionCancelled"] = "Conversión cancelada por el usuario.",
+            ["ConversionFailed"] = "Error de conversión: {0}",
+
+            // Dialogs
+            ["Dialog_SelectImagesTitle"] = "Seleccionar imágenes para convertir",
+            ["Dialog_ImageFilter"] = "Archivos de imagen (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif|Todos los archivos (*.*)|*.*",
+            ["Dialog_SelectFolderTitle"] = "Seleccionar carpeta con imágenes",
+            ["Dialog_SelectOutputTitle"] = "Seleccionar carpeta de destino para archivos PDF"
         };
     }
 }

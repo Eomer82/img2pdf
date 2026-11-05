@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Img2Pdf.App.Models;
@@ -19,6 +21,16 @@ public partial class MainViewModel : ObservableObject
     private ImageFileItem? _selectedItem;
 
     public bool HasSelectedItem => SelectedItem != null;
+
+    // Full-Size Preview (Quick Look)
+    [ObservableProperty]
+    private bool _isPreviewOpen;
+
+    [ObservableProperty]
+    private ImageFileItem? _previewItem;
+
+    [ObservableProperty]
+    private ImageSource? _previewImage;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsIndividualMode))]
@@ -78,6 +90,40 @@ public partial class MainViewModel : ObservableObject
     }
 
     public bool HasMarginsConfigurable => !IsOriginalSize;
+
+    // Images per page (1, 2, 4)
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsOneImagePerPage))]
+    [NotifyPropertyChangedFor(nameof(IsTwoImagesPerPage))]
+    [NotifyPropertyChangedFor(nameof(IsFourImagesPerPage))]
+    private ImagesPerPage _imagesPerPage = ImagesPerPage.One;
+
+    public bool IsOneImagePerPage
+    {
+        get => ImagesPerPage == ImagesPerPage.One;
+        set
+        {
+            if (value) ImagesPerPage = ImagesPerPage.One;
+        }
+    }
+
+    public bool IsTwoImagesPerPage
+    {
+        get => ImagesPerPage == ImagesPerPage.Two;
+        set
+        {
+            if (value) ImagesPerPage = ImagesPerPage.Two;
+        }
+    }
+
+    public bool IsFourImagesPerPage
+    {
+        get => ImagesPerPage == ImagesPerPage.Four;
+        set
+        {
+            if (value) ImagesPerPage = ImagesPerPage.Four;
+        }
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsLosslessQuality))]
@@ -164,10 +210,23 @@ public partial class MainViewModel : ObservableObject
     private bool _openFolderWhenDone = true;
 
     [ObservableProperty]
+    private bool _openPdfWhenDone = false;
+
+    [ObservableProperty]
     private bool _enablePasswordProtection;
 
     [ObservableProperty]
     private string _password = string.Empty;
+
+    // PDF Document Metadata
+    [ObservableProperty]
+    private string _documentTitle = string.Empty;
+
+    [ObservableProperty]
+    private string _documentAuthor = string.Empty;
+
+    [ObservableProperty]
+    private string _documentSubject = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanConvert))]
@@ -271,9 +330,76 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void RotateSelected()
     {
-        if (SelectedItem != null)
+        var target = (IsPreviewOpen && PreviewItem != null) ? PreviewItem : SelectedItem;
+        if (target != null)
         {
-            SelectedItem.ManualRotation = (SelectedItem.ManualRotation + 90) % 360;
+            target.ManualRotation = (target.ManualRotation + 90) % 360;
+            OnPropertyChanged(nameof(PreviewItem));
+        }
+    }
+
+    [RelayCommand]
+    public void OpenPreview(ImageFileItem? item = null)
+    {
+        var target = item ?? SelectedItem;
+        if (target != null)
+        {
+            SelectedItem = target;
+            PreviewItem = target;
+            LoadPreviewImage(target);
+            IsPreviewOpen = true;
+        }
+    }
+
+    [RelayCommand]
+    public void ClosePreview()
+    {
+        IsPreviewOpen = false;
+        PreviewItem = null;
+        PreviewImage = null;
+    }
+
+    [RelayCommand]
+    public void NextPreview()
+    {
+        if (PreviewItem == null || Files.Count <= 1) return;
+        int idx = Files.IndexOf(PreviewItem);
+        if (idx >= 0)
+        {
+            int nextIdx = (idx + 1) % Files.Count;
+            OpenPreview(Files[nextIdx]);
+        }
+    }
+
+    [RelayCommand]
+    public void PreviousPreview()
+    {
+        if (PreviewItem == null || Files.Count <= 1) return;
+        int idx = Files.IndexOf(PreviewItem);
+        if (idx >= 0)
+        {
+            int prevIdx = (idx - 1 + Files.Count) % Files.Count;
+            OpenPreview(Files[prevIdx]);
+        }
+    }
+
+    private void LoadPreviewImage(ImageFileItem item)
+    {
+        try
+        {
+            var bmp = new BitmapImage();
+            bmp.BeginInit();
+            bmp.UriSource = new Uri(item.FilePath);
+            bmp.DecodePixelWidth = 1920;
+            bmp.CacheOption = BitmapCacheOption.OnLoad;
+            bmp.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+            bmp.EndInit();
+            bmp.Freeze();
+            PreviewImage = bmp;
+        }
+        catch
+        {
+            PreviewImage = item.Thumbnail;
         }
     }
 
@@ -307,6 +433,14 @@ public partial class MainViewModel : ObservableObject
         {
             Files.Move(index, index + 1);
             SelectedItem = Files[index + 1];
+        }
+    }
+
+    public void MoveItem(int oldIndex, int newIndex)
+    {
+        if (oldIndex >= 0 && oldIndex < Files.Count && newIndex >= 0 && newIndex < Files.Count && oldIndex != newIndex)
+        {
+            Files.Move(oldIndex, newIndex);
         }
     }
 
@@ -348,15 +482,19 @@ public partial class MainViewModel : ObservableObject
             QualityMode = QualityMode,
             JpegQuality = JpegQuality,
             MarginMode = MarginMode,
+            ImagesPerPage = ImagesPerPage,
             MergedFileName = MergedFileName,
             UseCustomOutputFolder = UseCustomOutputFolder,
             CustomOutputFolder = CustomOutputFolder,
             OpenFolderWhenDone = OpenFolderWhenDone,
+            OpenPdfWhenDone = OpenPdfWhenDone,
             EnablePasswordProtection = EnablePasswordProtection,
-            Password = Password
+            Password = Password,
+            DocumentTitle = DocumentTitle,
+            DocumentAuthor = DocumentAuthor,
+            DocumentSubject = DocumentSubject
         };
 
-        // Reset status for all items
         foreach (var file in Files)
         {
             file.Status = ConversionStatus.Venter;
@@ -369,6 +507,14 @@ public partial class MainViewModel : ObservableObject
             ProgressText = LocalizationService.GetString("ConvertingProgress", report.CurrentIndex, report.TotalCount, report.CurrentFile);
         });
 
+        string targetFolder = settings.UseCustomOutputFolder && !string.IsNullOrWhiteSpace(settings.CustomOutputFolder)
+            ? settings.CustomOutputFolder
+            : Files[0].Directory;
+
+        string primaryPdfFile = settings.OutputMode == OutputMode.MergedPdf
+            ? Path.Combine(targetFolder, settings.MergedFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase) ? settings.MergedFileName : $"{settings.MergedFileName}.pdf")
+            : Path.Combine(targetFolder, $"{Path.GetFileNameWithoutExtension(Files[0].FilePath)}.pdf");
+
         try
         {
             var stopwatch = Stopwatch.StartNew();
@@ -378,20 +524,21 @@ public partial class MainViewModel : ObservableObject
             ProgressValue = 100;
             ProgressText = LocalizationService.GetString("CompletedInSeconds", stopwatch.Elapsed.TotalSeconds);
 
-            if (settings.OpenFolderWhenDone)
+            if (settings.OpenPdfWhenDone && File.Exists(primaryPdfFile))
             {
-                string targetFolder = settings.UseCustomOutputFolder && !string.IsNullOrWhiteSpace(settings.CustomOutputFolder)
-                    ? settings.CustomOutputFolder
-                    : Files[0].Directory;
-
-                if (Directory.Exists(targetFolder))
+                Process.Start(new ProcessStartInfo
                 {
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = targetFolder,
-                        UseShellExecute = true
-                    });
-                }
+                    FileName = primaryPdfFile,
+                    UseShellExecute = true
+                });
+            }
+            else if (settings.OpenFolderWhenDone && Directory.Exists(targetFolder))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = targetFolder,
+                    UseShellExecute = true
+                });
             }
         }
         catch (OperationCanceledException)
