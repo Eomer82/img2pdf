@@ -12,8 +12,11 @@ A modern, fast, and lightweight Windows desktop application for lossless convers
 
 ---
 
-## ✨ Features (v1.6.0)
+## ✨ Features (v1.6.1)
 
+- 🚀 **Bundled Native WPF Runtime (`wpfgfx_cor3.dll`):**
+  - Fully bundles native DirectX and WPF graphics libraries directly into the single-file binary, ensuring instant startup on all Windows 10 & 11 PCs.
+  - Also publishes an optional portable `.zip` package (`Img2Pdf-Portable-x64.zip`) alongside the standalone `.exe`.
 - 🖼️ **PDF to Images & Custom Page Ranges (300 DPI):**
   - Extract pages as separate PDF files or render them into ultra-sharp 300 DPI PNG images using native `Windows.Data.Pdf`.
   - Specify custom page ranges (e.g. `1-3, 5`) or extract all pages with live status updates.
@@ -129,9 +132,10 @@ All native DirectX/WPF libraries (`wpfgfx_cor3.dll`, etc.) are bundled inside, a
 
 ---
 
-## 🇳🇴 Norsk Sammendrag (v1.6.0)
+## 🇳🇴 Norsk Sammendrag (v1.6.1)
 
-Img2Pdf er et lynraskt og moderne Windows-verktøy for å konvertere bilder og slå sammen PDF-filer. Nyheter i versjon 1.6.0:
+Img2Pdf er et lynraskt og moderne Windows-verktøy for å konvertere bilder og slå sammen PDF-filer. Nyheter i versjon 1.6.1:
+- **Garantert feilfri oppstart:** Bakt inn native WPF DirectX-grafikkbiblioteker (`wpfgfx_cor3.dll`) direkte i `.exe`-filen slik at appen starter umiddelbart. I tillegg tilbys nå en portabel `.zip`-pakke (`Img2Pdf-Portable-x64.zip`) under utgivelser.
 - **Pakk ut PDF til bilder (PNG 300 DPI) & Sideintervaller:** Gjør om PDF-sider til knivskarpe 300 DPI-bilder eller splitt ut spesifikke sider (f.eks. `1-3, 5`). Filstatus oppdateres umiddelbart til «Fullført».
 - **Flervalg (Multi-select):** Marker flere filer samtidig med `Ctrl` eller `Shift` for å slette eller rotere samlet.
 - **Optimalisert for Windows Defender:** Fjernet komprimert utpakkingslag for å eliminere falsk positiv `(EXEEmb)`-varsling.

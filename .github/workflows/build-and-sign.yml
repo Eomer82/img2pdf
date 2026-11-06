@@ -29,6 +29,7 @@ jobs:
             -r win-x64 `
             --self-contained true `
             -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
             -o ./build-output
 
       # 2. Upload unsigned binary as temporary artifact
@@ -66,13 +67,16 @@ jobs:
             Write-Host "SignPath not configured yet - using newly built executable"
             Copy-Item "./build-output/Img2Pdf.exe" "./release-asset/Img2Pdf.exe" -Force
           }
+          Compress-Archive -Path "./build-output/*" -DestinationPath "./release-asset/Img2Pdf-Portable-x64.zip" -Force
 
       # 5. Publish to GitHub Release (when triggered by release event)
-      - name: Publish Img2Pdf.exe to GitHub Release
+      - name: Publish Img2Pdf to GitHub Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: ./release-asset/Img2Pdf.exe
+          files: |
+            ./release-asset/Img2Pdf.exe
+            ./release-asset/Img2Pdf-Portable-x64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
