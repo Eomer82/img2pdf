@@ -1,5 +1,7 @@
 using System.IO;
 using System.Windows.Media.Imaging;
+using Windows.Storage;
+using Windows.Storage.Streams;
 using Img2Pdf.App.Models;
 using PdfSharp;
 using PdfSharp.Drawing;
@@ -644,7 +646,11 @@ public class PdfConversionService
         }
     }
 
-    public static async Task<List<string>> ExtractPdfPagesAsync(string pdfPath, string outputFolder, CancellationToken cancellationToken = default)
+    public static async Task<List<string>> ExtractPdfPagesAsync(
+        string pdfPath, 
+        string outputFolder, 
+        string? pageRange = null, 
+        CancellationToken cancellationToken = default)
     {
         var extractedFiles = new List<string>();
         Directory.CreateDirectory(outputFolder);
@@ -653,17 +659,62 @@ public class PdfConversionService
         {
             using var inputDoc = PdfReader.Open(pdfPath, PdfDocumentOpenMode.Import);
             string baseName = Path.GetFileNameWithoutExtension(pdfPath);
+            var pages = PageRangeHelper.Parse(pageRange, inputDoc.Pages.Count);
 
-            for (int i = 0; i < inputDoc.Pages.Count; i++)
+            foreach (int pageIndex in pages)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 using var singlePageDoc = new PdfDocument();
-                singlePageDoc.AddPage(inputDoc.Pages[i]);
-                string singlePagePath = Path.Combine(outputFolder, $"{baseName}_side_{i + 1}.pdf");
+                singlePageDoc.AddPage(inputDoc.Pages[pageIndex]);
+                string singlePagePath = Path.Combine(outputFolder, $"{baseName}_side_{pageIndex + 1}.pdf");
                 singlePageDoc.Save(singlePagePath);
                 extractedFiles.Add(singlePagePath);
             }
         }, cancellationToken);
+
+        return extractedFiles;
+    }
+
+    public static async Task<List<string>> ExtractPdfAsImagesAsync(
+        string pdfPath,
+        string outputFolder,
+        string? pageRange = null,
+        CancellationToken cancellationToken = default)
+    {
+        var extractedFiles = new List<string>();
+        Directory.CreateDirectory(outputFolder);
+
+        var file = await StorageFile.GetFileFromPathAsync(Path.GetFullPath(pdfPath));
+        var pdfDoc = await Windows.Data.Pdf.PdfDocument.LoadFromFileAsync(file);
+
+        string baseName = Path.GetFileNameWithoutExtension(pdfPath);
+        var pages = PageRangeHelper.Parse(pageRange, (int)pdfDoc.PageCount);
+
+        foreach (int pageIndex in pages)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            using var page = pdfDoc.GetPage((uint)pageIndex);
+
+            // Render at 300 DPI for high fidelity output
+            var renderOptions = new Windows.Data.Pdf.PdfPageRenderOptions
+            {
+                DestinationWidth = (uint)Math.Max(100, Math.Round(page.Size.Width * (300.0 / 72.0))),
+                DestinationHeight = (uint)Math.Max(100, Math.Round(page.Size.Height * (300.0 / 72.0)))
+            };
+
+            string outPath = Path.Combine(outputFolder, $"{baseName}_side_{pageIndex + 1}.png");
+            using var memStream = new InMemoryRandomAccessStream();
+            await page.RenderToStreamAsync(memStream, renderOptions);
+            memStream.Seek(0);
+
+            using (var outFs = new FileStream(outPath, FileMode.Create, FileAccess.Write))
+            {
+                using var netStream = memStream.AsStreamForRead();
+                await netStream.CopyToAsync(outFs, cancellationToken);
+            }
+
+            extractedFiles.Add(outPath);
+        }
 
         return extractedFiles;
     }

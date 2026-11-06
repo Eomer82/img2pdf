@@ -272,6 +272,15 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         }
     }
 
+    private void OnListViewSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.SelectedFiles.Clear();
+        foreach (var item in FilesListView.SelectedItems.OfType<ImageFileItem>())
+        {
+            ViewModel.SelectedFiles.Add(item);
+        }
+    }
+
     private void OnColumnHeaderClick(object sender, RoutedEventArgs e)
     {
         if (e.OriginalSource is GridViewColumnHeader header && header.Column != null)

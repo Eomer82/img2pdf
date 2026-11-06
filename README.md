@@ -12,8 +12,15 @@ A modern, fast, and lightweight Windows desktop application for lossless convers
 
 ---
 
-## ✨ Features (v1.5.0)
+## ✨ Features (v1.6.0)
 
+- 🖼️ **PDF to Images & Custom Page Ranges (300 DPI):**
+  - Extract pages as separate PDF files or render them into ultra-sharp 300 DPI PNG images using native `Windows.Data.Pdf`.
+  - Specify custom page ranges (e.g. `1-3, 5`) or extract all pages with live status updates.
+- ⚡ **Multi-Selection Batch Actions:**
+  - Select multiple files using `Ctrl` or `Shift` to rotate, reorder, or remove in batches.
+- 🛡️ **Clean Single-File Build (Windows Defender Optimized):**
+  - Removed self-extracting compression wrapper, eliminating `(EXEEmb)` heuristic false positives in Windows Defender.
 - 🎨 **Official Windows 11 Fluent App Icon:**
   - Modern, high-resolution 3D acrylic squircle icon embedded directly into the executable binary (`Img2Pdf.exe`), window title bar, and Windows Explorer context menu.
 - 🌐 **Full Dynamic Live Localization:**
@@ -122,9 +129,12 @@ All native DirectX/WPF libraries (`wpfgfx_cor3.dll`, etc.) are bundled inside, a
 
 ---
 
-## 🇳🇴 Norsk Sammendrag (v1.5.0)
+## 🇳🇴 Norsk Sammendrag (v1.6.0)
 
-Img2Pdf er et lynraskt og moderne Windows-verktøy for å konvertere bilder og slå sammen PDF-filer. Nyheter i versjon 1.5.0:
+Img2Pdf er et lynraskt og moderne Windows-verktøy for å konvertere bilder og slå sammen PDF-filer. Nyheter i versjon 1.6.0:
+- **Pakk ut PDF til bilder (PNG 300 DPI) & Sideintervaller:** Gjør om PDF-sider til knivskarpe 300 DPI-bilder eller splitt ut spesifikke sider (f.eks. `1-3, 5`). Filstatus oppdateres umiddelbart til «Fullført».
+- **Flervalg (Multi-select):** Marker flere filer samtidig med `Ctrl` eller `Shift` for å slette eller rotere samlet.
+- **Optimalisert for Windows Defender:** Fjernet komprimert utpakkingslag for å eliminere falsk positiv `(EXEEmb)`-varsling.
 - **Offisielt Windows 11 Fluent App-ikon:** Profesjonelt 3D-akrylikon bakt direkte inn i `Img2Pdf.exe`, oppgavelinjen, tittelbaren og i høyreklikkmenyen i Windows Utforsker.
 - **Full dynamisk språkoppdatering:** Statusbeskjeder i bunnlinjen («Klar til å konvertere», antall filer, fremdriftsmeldinger) og modale verktøytips oppdaterer seg nå øyeblikkelig når man bytter språk.
 - **Fastlåst Start-knapp (Sticky Footer):** Start/Avbryt-knappen er permanent festet i bunnen av høyrepanel slik at den alltid er umiddelbart tilgjengelig uten å måtte scrolle forbi innstillingene.

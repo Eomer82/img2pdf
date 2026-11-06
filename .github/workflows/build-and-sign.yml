@@ -29,8 +29,6 @@ jobs:
             -r win-x64 `
             --self-contained true `
             -p:PublishSingleFile=true `
-            -p:IncludeNativeLibrariesForSelfExtract=true `
-            -p:EnableCompressionInSingleFile=true `
             -o ./build-output
 
       # 2. Upload unsigned binary as temporary artifact

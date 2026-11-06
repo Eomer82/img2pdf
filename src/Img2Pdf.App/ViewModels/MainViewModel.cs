@@ -319,6 +319,14 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _estimatedOutputSize = string.Empty;
 
+    // PDF Utpakking
+    [ObservableProperty]
+    private string _pdfExtractPageRange = string.Empty;
+
+    // Flervalg
+    [ObservableProperty]
+    private ObservableCollection<ImageFileItem> _selectedFiles = new();
+
     private string _currentProgressKey = "ReadyToConvert";
     private object[] _currentProgressArgs = Array.Empty<object>();
 
@@ -427,10 +435,12 @@ public partial class MainViewModel : ObservableObject
         if (target != null && target.IsPdf)
         {
             string outputFolder = Path.Combine(target.Directory, $"{Path.GetFileNameWithoutExtension(target.FilePath)}_Sider");
+            target.Status = ConversionStatus.Behandler;
             SetProgressStatus("ExtractingPdfPages");
             try
             {
-                var files = await PdfConversionService.ExtractPdfPagesAsync(target.FilePath, outputFolder);
+                var files = await PdfConversionService.ExtractPdfPagesAsync(target.FilePath, outputFolder, PdfExtractPageRange);
+                target.Status = ConversionStatus.Fullført;
                 SetProgressStatus("PdfPagesExtracted", files.Count);
                 if (Directory.Exists(outputFolder))
                 {
@@ -439,6 +449,36 @@ public partial class MainViewModel : ObservableObject
             }
             catch (Exception ex)
             {
+                target.Status = ConversionStatus.Feilet;
+                target.ErrorMessage = ex.Message;
+                SetProgressStatus("ConversionFailed", ex.Message);
+            }
+        }
+    }
+
+    [RelayCommand]
+    public async Task ExtractPdfAsImagesAsync(ImageFileItem? item = null)
+    {
+        var target = item ?? SelectedItem;
+        if (target != null && target.IsPdf)
+        {
+            string outputFolder = Path.Combine(target.Directory, $"{Path.GetFileNameWithoutExtension(target.FilePath)}_Bilder");
+            target.Status = ConversionStatus.Behandler;
+            SetProgressStatus("ExtractingPdfImages");
+            try
+            {
+                var files = await PdfConversionService.ExtractPdfAsImagesAsync(target.FilePath, outputFolder, PdfExtractPageRange);
+                target.Status = ConversionStatus.Fullført;
+                SetProgressStatus("PdfImagesExtracted", files.Count);
+                if (Directory.Exists(outputFolder))
+                {
+                    Process.Start(new ProcessStartInfo { FileName = outputFolder, UseShellExecute = true });
+                }
+            }
+            catch (Exception ex)
+            {
+                target.Status = ConversionStatus.Feilet;
+                target.ErrorMessage = ex.Message;
                 SetProgressStatus("ConversionFailed", ex.Message);
             }
         }
@@ -481,9 +521,17 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void RemoveSelected()
     {
-        if (SelectedItem != null)
+        var targets = SelectedFiles.Count > 0 
+            ? SelectedFiles.ToList() 
+            : (SelectedItem != null ? new List<ImageFileItem> { SelectedItem } : new List<ImageFileItem>());
+
+        if (targets.Count > 0)
         {
-            Files.Remove(SelectedItem);
+            foreach (var item in targets)
+            {
+                Files.Remove(item);
+            }
+            SelectedFiles.Clear();
             SelectedItem = Files.FirstOrDefault();
             HasFiles = Files.Count > 0;
             UpdateStatusSummary();
@@ -501,11 +549,20 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void RotateSelected()
     {
-        var target = (IsPreviewOpen && PreviewItem != null) ? PreviewItem : SelectedItem;
-        if (target != null)
+        if (IsPreviewOpen && PreviewItem != null)
         {
-            target.ManualRotation = (target.ManualRotation + 90) % 360;
+            PreviewItem.ManualRotation = (PreviewItem.ManualRotation + 90) % 360;
             OnPropertyChanged(nameof(PreviewItem));
+            return;
+        }
+
+        var targets = SelectedFiles.Count > 0 
+            ? SelectedFiles.ToList() 
+            : (SelectedItem != null ? new List<ImageFileItem> { SelectedItem } : new List<ImageFileItem>());
+
+        foreach (var item in targets)
+        {
+            item.ManualRotation = (item.ManualRotation + 90) % 360;
         }
     }
 

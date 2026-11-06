@@ -151,6 +151,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["AddFolder"] = "Add folder",
             ["PasteImage"] = "Paste image (Ctrl+V)",
             ["ExtractPdf"] = "Extract PDF pages",
+            ["ExtractPdfAsImages"] = "Extract as images (PNG)",
             ["Rotate"] = "Rotate 90°",
             ["MoveUp"] = "Move up",
             ["MoveDown"] = "Move down",
@@ -201,7 +202,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["PdfDocument"] = "PDF Document",
             ["EstimatedPdfSize"] = "Est. PDF size: ~{0}",
             ["ExtractingPdfPages"] = "Extracting PDF pages...",
+            ["ExtractingPdfImages"] = "Extracting images from PDF...",
             ["PdfPagesExtracted"] = "Extracted {0} pages to folder!",
+            ["PdfImagesExtracted"] = "Extracted {0} images to folder!",
+            ["Card_PdfExtraction"] = "PDF Extraction Tools",
+            ["PageRangeLabel"] = "Page range (e.g. 1-3, 5):",
+            ["PageRangePlaceholder"] = "All pages (leave empty for all)",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Conversion Mode",
@@ -320,6 +326,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["AddFolder"] = "Legg til mappe",
             ["PasteImage"] = "Lim inn bilde (Ctrl+V)",
             ["ExtractPdf"] = "Pakk ut PDF-sider",
+            ["ExtractPdfAsImages"] = "Pakk ut som bilder (PNG)",
             ["Rotate"] = "Roter 90°",
             ["MoveUp"] = "Flytt opp",
             ["MoveDown"] = "Flytt ned",
@@ -370,7 +377,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["PdfDocument"] = "PDF-dokument",
             ["EstimatedPdfSize"] = "Estimert PDF-størrelse: ~{0}",
             ["ExtractingPdfPages"] = "Pakker ut PDF-sider...",
+            ["ExtractingPdfImages"] = "Pakker ut bilder fra PDF...",
             ["PdfPagesExtracted"] = "Pakket ut {0} sider til mappe!",
+            ["PdfImagesExtracted"] = "Pakket ut {0} bilder til mappe!",
+            ["Card_PdfExtraction"] = "PDF-utpakking og verktøy",
+            ["PageRangeLabel"] = "Sideintervall (f.eks. 1-3, 5):",
+            ["PageRangePlaceholder"] = "Alle sider (la stå tom for alle)",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Konverteringsmodus",
@@ -489,6 +501,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["AddFolder"] = "Ordner hinzufügen",
             ["PasteImage"] = "Bild einfügen (Strg+V)",
             ["ExtractPdf"] = "PDF-Seiten extrahieren",
+            ["ExtractPdfAsImages"] = "Als Bilder extrahieren (PNG)",
             ["Rotate"] = "90° drehen",
             ["MoveUp"] = "Nach oben",
             ["MoveDown"] = "Nach unten",
@@ -539,7 +552,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["PdfDocument"] = "PDF-Dokument",
             ["EstimatedPdfSize"] = "Geschätzte PDF-Größe: ~{0}",
             ["ExtractingPdfPages"] = "PDF-Seiten werden extrahiert...",
+            ["ExtractingPdfImages"] = "Bilder aus PDF werden extrahiert...",
             ["PdfPagesExtracted"] = "{0} Seiten in Ordner extrahiert!",
+            ["PdfImagesExtracted"] = "{0} Bilder in Ordner extrahiert!",
+            ["Card_PdfExtraction"] = "PDF-Extraktionswerkzeuge",
+            ["PageRangeLabel"] = "Seitenbereich (z. B. 1-3, 5):",
+            ["PageRangePlaceholder"] = "Alle Seiten (leer lassen für alle)",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Konvertierungsmodus",
@@ -658,6 +676,7 @@ public class LocalizationService : INotifyPropertyChanged
             ["AddFolder"] = "Añadir carpeta",
             ["PasteImage"] = "Pegar imagen (Ctrl+V)",
             ["ExtractPdf"] = "Extraer páginas PDF",
+            ["ExtractPdfAsImages"] = "Extraer como imágenes (PNG)",
             ["Rotate"] = "Girar 90°",
             ["MoveUp"] = "Subir",
             ["MoveDown"] = "Bajar",
@@ -708,7 +727,12 @@ public class LocalizationService : INotifyPropertyChanged
             ["PdfDocument"] = "Documento PDF",
             ["EstimatedPdfSize"] = "Tamaño est. PDF: ~{0}",
             ["ExtractingPdfPages"] = "Extrayendo páginas PDF...",
+            ["ExtractingPdfImages"] = "Extrayendo imágenes del PDF...",
             ["PdfPagesExtracted"] = "¡{0} páginas extraídas a la carpeta!",
+            ["PdfImagesExtracted"] = "¡{0} imágenes extraídas a la carpeta!",
+            ["Card_PdfExtraction"] = "Herramientas de extracción de PDF",
+            ["PageRangeLabel"] = "Rango de páginas (ej. 1-3, 5):",
+            ["PageRangePlaceholder"] = "Todas las páginas (dejar vacío)",
 
             // Conversion mode
             ["Card_ModeTitle"] = "Modo de conversión",
