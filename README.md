@@ -12,8 +12,30 @@ A modern, fast, and lightweight Windows desktop application for lossless convers
 
 ---
 
-## ✨ Features (v1.6.1)
+## ✨ Features (v2.0.0 — "Storpakka")
 
+- 🗜️ **PDF Size Compressor ("Krympe PDF"):**
+  - Built-in multi-page PDF re-rendering and re-encoding with custom compression profiles:
+    - **E-post / Web (150 DPI, 55% JPEG):** Ultra-compact for email attachments and web upload portals.
+    - **Balansert / Standard (200 DPI, 75% JPEG):** Ideal balance between crisp readability and small file size.
+    - **Høy kvalitet / Trykk (300 DPI, 85% JPEG):** Archival quality with razor-sharp text and graphics.
+  - Live progress tracking and detailed summary showing space saved (e.g. `Spart 65% (12.4 MB -> 4.3 MB)`).
+- 📑 **PDF Bookmarks & Visual Table of Contents:**
+  - **Native PDF Outline Bookmarks:** Standard clickable PDF bookmarks created automatically from file names, visible in Adobe Acrobat, Edge, Chrome, and Preview.
+  - **Publication-Grade Table of Contents:** Optional visual title page rendered with elegant dotted leader lines and page numbers.
+- 🗂️ **Visual Page Organizer (Thumbnail Grid View):**
+  - Switch between the classic detailed table list and a modern visual card grid with large image thumbnails.
+  - Quick-rotate and delete directly on each card, with clear PDF badges and stamp indicators.
+- 🏷️ **Smart Dynamic Auto-Naming:**
+  - Template tokens for merged PDF filenames (`{Date}`, `{Time}`, `{Folder}`, `{Count}`, `{Year}`, `{Month}`, `{Day}`).
+  - Quick-insert chip buttons (`{Dato}`, `{Tid}`, `{Mappe}`, `{Antall}`) and real-time live preview of the resolved filename.
+- 🖋️ **Digital Rubber Stamps & Signatures ("Sign & Stamp"):**
+  - Stamp documents and images with authentic rotated rubber badge stamps:
+    - **GODKJENT / APPROVED** (Emerald Green)
+    - **BETALT / PAID** (Cobalt Blue)
+    - **KOPI / COPY** (Amber Orange)
+    - **UTKAST / DRAFT** (Crimson Red)
+  - Features authentic double borders, rotation angle, and current date stamp.
 - 🚀 **Bundled Native WPF Runtime (`wpfgfx_cor3.dll`):**
   - Fully bundles native DirectX and WPF graphics libraries directly into the single-file binary, ensuring instant startup on all Windows 10 & 11 PCs.
   - Also publishes an optional portable `.zip` package (`Img2Pdf-Portable-x64.zip`) alongside the standalone `.exe`.

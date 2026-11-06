@@ -304,6 +304,30 @@ public class LocalizationService : INotifyPropertyChanged
             ["ConversionCancelled"] = "Conversion cancelled by user.",
             ["ConversionFailed"] = "Conversion error: {0}",
 
+            // V2.0 Storpakka features
+            ["CompressPdf"] = "Compress PDF",
+            ["CompressingPdf"] = "Compressing PDF ({0}%)...",
+            ["PdfCompressed"] = "PDF compressed! Saved {0:F0}% ({1} -> {2})",
+            ["CompressionProfile"] = "Compression profile:",
+            ["Profile_Email"] = "E-mail / Web (150 DPI, compact)",
+            ["Profile_Balanced"] = "Balanced (200 DPI, standard)",
+            ["Profile_HighQuality"] = "High quality (300 DPI, print)",
+            ["Card_Compression"] = "PDF Size Compressor",
+            ["GenerateBookmarks"] = "Create PDF bookmarks from file names",
+            ["GenerateTableOfContents"] = "Add visual Table of Contents page",
+            ["TableOfContents"] = "Table of Contents",
+            ["View_Details"] = "List View",
+            ["View_Grid"] = "Grid View",
+            ["AddStamp"] = "Apply Stamp",
+            ["ClearStamp"] = "Remove Stamp",
+            ["Stamp_Approved"] = "APPROVED",
+            ["Stamp_Paid"] = "PAID",
+            ["Stamp_Copy"] = "COPY",
+            ["Stamp_Draft"] = "DRAFT",
+            ["StampMenu"] = "Stamp / Badge",
+            ["DynamicNamingHint"] = "Tokens: {Date}, {Time}, {Folder}, {Count}",
+            ["DynamicNamingPreview"] = "Preview:",
+
             // Dialogs
             ["Dialog_SelectImagesTitle"] = "Select images or PDFs to convert",
             ["Dialog_ImageFilter"] = "Supported files (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.pdf)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif;*.pdf|All files (*.*)|*.*",
@@ -478,6 +502,30 @@ public class LocalizationService : INotifyPropertyChanged
             ["CompletedInSeconds"] = "Fullført på {0:F1} sekunder!",
             ["ConversionCancelled"] = "Konvertering avbrutt av bruker.",
             ["ConversionFailed"] = "Feil under konvertering: {0}",
+
+            // V2.0 Storpakka features
+            ["CompressPdf"] = "Krymp PDF",
+            ["CompressingPdf"] = "Komprimerer PDF ({0}%)...",
+            ["PdfCompressed"] = "PDF komprimert! Spart {0:F0}% ({1} -> {2})",
+            ["CompressionProfile"] = "Komprimeringsprofil:",
+            ["Profile_Email"] = "E-post / Web (150 DPI, kompakt)",
+            ["Profile_Balanced"] = "Balansert (200 DPI, standard)",
+            ["Profile_HighQuality"] = "Høy kvalitet (300 DPI, utskrift)",
+            ["Card_Compression"] = "Krympe PDF (Filstørrelse)",
+            ["GenerateBookmarks"] = "Opprett PDF-bokmerker fra filnavn",
+            ["GenerateTableOfContents"] = "Legg til visuell innholdsfortegnelse",
+            ["TableOfContents"] = "Innholdsfortegnelse",
+            ["View_Details"] = "Listevisning",
+            ["View_Grid"] = "Rutenett",
+            ["AddStamp"] = "Sett på stempel",
+            ["ClearStamp"] = "Fjern stempel",
+            ["Stamp_Approved"] = "GODKJENT",
+            ["Stamp_Paid"] = "BETALT",
+            ["Stamp_Copy"] = "KOPI",
+            ["Stamp_Draft"] = "UTKAST",
+            ["StampMenu"] = "Stempel / Signatur",
+            ["DynamicNamingHint"] = "Bruk koder: {Dato}, {Tid}, {Mappe}, {Antall}",
+            ["DynamicNamingPreview"] = "Forhåndsvisning:",
 
             // Dialogs
             ["Dialog_SelectImagesTitle"] = "Velg bilder eller PDF-filer som skal konverteres",
@@ -654,6 +702,30 @@ public class LocalizationService : INotifyPropertyChanged
             ["ConversionCancelled"] = "Konvertierung vom Benutzer abgebrochen.",
             ["ConversionFailed"] = "Konvertierungsfehler: {0}",
 
+            // V2.0 Storpakka features
+            ["CompressPdf"] = "PDF komprimieren",
+            ["CompressingPdf"] = "PDF wird komprimiert ({0}%)...",
+            ["PdfCompressed"] = "PDF komprimiert! {0:F0}% gespart ({1} -> {2})",
+            ["CompressionProfile"] = "Komprimierungsprofil:",
+            ["Profile_Email"] = "E-Mail / Web (150 DPI, kompakt)",
+            ["Profile_Balanced"] = "Ausgewogen (200 DPI, Standard)",
+            ["Profile_HighQuality"] = "Hohe Qualität (300 DPI, Druck)",
+            ["Card_Compression"] = "PDF-Dateigröße komprimieren",
+            ["GenerateBookmarks"] = "PDF-Lesezeichen aus Dateinamen erstellen",
+            ["GenerateTableOfContents"] = "Visuelles Inhaltsverzeichnis hinzufügen",
+            ["TableOfContents"] = "Inhaltsverzeichnis",
+            ["View_Details"] = "Listenansicht",
+            ["View_Grid"] = "Rasteransicht",
+            ["AddStamp"] = "Stempel anbringen",
+            ["ClearStamp"] = "Stempel entfernen",
+            ["Stamp_Approved"] = "GENEHMIGT",
+            ["Stamp_Paid"] = "BEZAHLT",
+            ["Stamp_Copy"] = "KOPIE",
+            ["Stamp_Draft"] = "ENTWURF",
+            ["StampMenu"] = "Stempel / Signatur",
+            ["DynamicNamingHint"] = "Token: {Datum}, {Zeit}, {Ordner}, {Anzahl}",
+            ["DynamicNamingPreview"] = "Vorschau:",
+
             // Dialogs
             ["Dialog_SelectImagesTitle"] = "Bilder oder PDF-Dateien zum Konvertieren auswählen",
             ["Dialog_ImageFilter"] = "Unterstützte Dateien (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.pdf)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif;*.pdf|Alle Dateien (*.*)|*.*",
@@ -829,6 +901,30 @@ public class LocalizationService : INotifyPropertyChanged
             ["ConversionCancelled"] = "Conversión cancelada por el usuario.",
             ["ConversionFailed"] = "Error de conversión: {0}",
 
+            // V2.0 Storpakka features
+            ["CompressPdf"] = "Comprimir PDF",
+            ["CompressingPdf"] = "Comprimiendo PDF ({0}%)...",
+            ["PdfCompressed"] = "¡PDF comprimido! Ahorrado {0:F0}% ({1} -> {2})",
+            ["CompressionProfile"] = "Perfil de compresión:",
+            ["Profile_Email"] = "Correo / Web (150 DPI, compacto)",
+            ["Profile_Balanced"] = "Equilibrado (200 DPI, estándar)",
+            ["Profile_HighQuality"] = "Alta calidad (300 DPI, impresión)",
+            ["Card_Compression"] = "Compresor de tamaño PDF",
+            ["GenerateBookmarks"] = "Crear marcadores PDF a partir de nombres de archivo",
+            ["GenerateTableOfContents"] = "Añadir página visual de índice de contenido",
+            ["TableOfContents"] = "Índice de contenido",
+            ["View_Details"] = "Vista de lista",
+            ["View_Grid"] = "Vista de cuadrícula",
+            ["AddStamp"] = "Aplicar sello",
+            ["ClearStamp"] = "Quitar sello",
+            ["Stamp_Approved"] = "APROBADO",
+            ["Stamp_Paid"] = "PAGADO",
+            ["Stamp_Copy"] = "COPIA",
+            ["Stamp_Draft"] = "BORRADOR",
+            ["StampMenu"] = "Sello / Firma",
+            ["DynamicNamingHint"] = "Tokens: {Fecha}, {Hora}, {Carpeta}, {Contador}",
+            ["DynamicNamingPreview"] = "Vista previa:",
+
             // Dialogs
             ["Dialog_SelectImagesTitle"] = "Seleccionar imágenes o archivos PDF para convertir",
             ["Dialog_ImageFilter"] = "Archivos compatibles (*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.pdf)|*.jpg;*.jpeg;*.png;*.bmp;*.webp;*.tiff;*.tif;*.pdf|Todos los archivos (*.*)|*.*",
@@ -865,5 +961,19 @@ public class TranslateExtension : MarkupExtension
         };
 
         return binding.ProvideValue(serviceProvider);
+    }
+}
+
+[ValueConversion(typeof(bool), typeof(System.Windows.Visibility))]
+public class InverseBooleanToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return value is bool b && b ? System.Windows.Visibility.Collapsed : System.Windows.Visibility.Visible;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return value is System.Windows.Visibility v && v != System.Windows.Visibility.Visible;
     }
 }

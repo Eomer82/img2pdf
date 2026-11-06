@@ -85,6 +85,10 @@ public class ConversionSettings
     // Searchable PDF (Windows OCR)
     public bool EnableOcr { get; set; } = false;
 
+    // Bokmerker & Innholdsfortegnelse
+    public bool GenerateBookmarks { get; set; } = true;
+    public bool GenerateTableOfContents { get; set; } = false;
+
     // PDF Metadata
     public string? DocumentTitle { get; set; }
     public string? DocumentAuthor { get; set; }

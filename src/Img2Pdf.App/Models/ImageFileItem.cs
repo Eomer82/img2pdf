@@ -79,6 +79,27 @@ public partial class ImageFileItem : ObservableObject
         CropBottom = 0;
     }
 
+    // Stempler & Signatur
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasStamp))]
+    private string? _stampText;
+
+    [ObservableProperty]
+    private string _stampColor = "Green";
+
+    public bool HasStamp => !string.IsNullOrWhiteSpace(StampText);
+
+    public void ApplyStamp(string text, string color = "Green")
+    {
+        StampText = text;
+        StampColor = color;
+    }
+
+    public void ClearStamp()
+    {
+        StampText = null;
+    }
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasThumbnail))]
     private ImageSource? _thumbnail;

@@ -222,7 +222,78 @@ public partial class MainViewModel : ObservableObject
     }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ResolvedMergedFileName))]
     private string _mergedFileName;
+
+    public string ResolvedMergedFileName => FilenamePatternHelper.Resolve(
+        MergedFileName,
+        Files.Count,
+        Files.FirstOrDefault()?.Directory);
+
+    [RelayCommand]
+    public void InsertFileNameToken(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token)) return;
+
+        string current = MergedFileName ?? string.Empty;
+        if (current.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            string baseName = current[..^4];
+            MergedFileName = $"{baseName}_{token}.pdf";
+        }
+        else
+        {
+            MergedFileName = $"{current}_{token}";
+        }
+    }
+
+    // Visningsmodus (Detaljert tabelliste vs Rutenett med store miniatyrbilder)
+    [ObservableProperty]
+    private bool _isGridView = false;
+
+    [RelayCommand]
+    public void ToggleViewMode()
+    {
+        IsGridView = !IsGridView;
+    }
+
+    [RelayCommand]
+    public void SetViewMode(string mode)
+    {
+        IsGridView = mode?.Equals("Grid", StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    // Bokmerker & Innholdsfortegnelse
+    [ObservableProperty]
+    private bool _generateBookmarks = true;
+
+    [ObservableProperty]
+    private bool _generateTableOfContents = false;
+
+    // PDF Komprimeringsprofil (Krympe PDF)
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsCompressionEmail))]
+    [NotifyPropertyChangedFor(nameof(IsCompressionBalanced))]
+    [NotifyPropertyChangedFor(nameof(IsCompressionHighQuality))]
+    private PdfCompressionProfile _compressionProfile = PdfCompressionProfile.Balanced;
+
+    public bool IsCompressionEmail
+    {
+        get => CompressionProfile == PdfCompressionProfile.Email;
+        set { if (value) CompressionProfile = PdfCompressionProfile.Email; }
+    }
+
+    public bool IsCompressionBalanced
+    {
+        get => CompressionProfile == PdfCompressionProfile.Balanced;
+        set { if (value) CompressionProfile = PdfCompressionProfile.Balanced; }
+    }
+
+    public bool IsCompressionHighQuality
+    {
+        get => CompressionProfile == PdfCompressionProfile.HighQuality;
+        set { if (value) CompressionProfile = PdfCompressionProfile.HighQuality; }
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UseSourceFolder))]
@@ -351,6 +422,7 @@ public partial class MainViewModel : ObservableObject
             UpdateStatusSummary();
             ProgressText = LocalizationService.GetString(_currentProgressKey, _currentProgressArgs);
             UpdateMergedFileNameOnLanguageChange();
+            OnPropertyChanged(nameof(ResolvedMergedFileName));
             foreach (var file in Files)
             {
                 file.RefreshLocalization();
@@ -484,8 +556,165 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    public async Task CompressPdfAsync(ImageFileItem? item = null)
+    {
+        var target = item ?? SelectedItem;
+        if (target != null && target.IsPdf)
+        {
+            string outDir = target.Directory;
+            string fileNameWithoutExt = Path.GetFileNameWithoutExtension(target.FilePath);
+            string outputPath = Path.Combine(outDir, $"{fileNameWithoutExt}_Krympet.pdf");
+
+            int counter = 1;
+            while (File.Exists(outputPath))
+            {
+                outputPath = Path.Combine(outDir, $"{fileNameWithoutExt}_Krympet_{counter}.pdf");
+                counter++;
+            }
+
+            IsBusy = true;
+            ProgressValue = 0;
+            target.Status = ConversionStatus.Behandler;
+            SetProgressStatus("CompressingPdf", 0);
+
+            var progress = new Progress<double>(pct =>
+            {
+                ProgressValue = pct;
+                SetProgressStatus("CompressingPdf", (int)Math.Round(pct));
+            });
+
+            try
+            {
+                var result = await PdfConversionService.CompressPdfAsync(
+                    target.FilePath,
+                    outputPath,
+                    CompressionProfile,
+                    progress);
+
+                target.Status = ConversionStatus.Fullført;
+                ProgressValue = 100;
+                SetProgressStatus(
+                    "PdfCompressed",
+                    result.SavingsPercentage,
+                    ImageFileItem.FormatBytes(result.OriginalBytes),
+                    ImageFileItem.FormatBytes(result.CompressedBytes));
+
+                if (File.Exists(outputPath))
+                {
+                    if (OpenPdfWhenDone)
+                    {
+                        Process.Start(new ProcessStartInfo { FileName = outputPath, UseShellExecute = true });
+                    }
+                    else if (OpenFolderWhenDone)
+                    {
+                        Process.Start(new ProcessStartInfo { FileName = outDir, UseShellExecute = true });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                target.Status = ConversionStatus.Feilet;
+                target.ErrorMessage = ex.Message;
+                SetProgressStatus("ConversionFailed", ex.Message);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+    }
+
+    [RelayCommand]
+    public void ApplyStamp(string stampType)
+    {
+        string text;
+        string color;
+
+        switch (stampType?.ToUpperInvariant())
+        {
+            case "GODKJENT":
+            case "APPROVED":
+            case "GENEHMIGT":
+            case "APROBADO":
+                text = LocalizationService.GetString("Stamp_Approved");
+                color = "Green";
+                break;
+            case "BETALT":
+            case "PAID":
+            case "BEZAHLT":
+            case "PAGADO":
+                text = LocalizationService.GetString("Stamp_Paid");
+                color = "Blue";
+                break;
+            case "KOPI":
+            case "COPY":
+            case "KOPIE":
+            case "COPIA":
+                text = LocalizationService.GetString("Stamp_Copy");
+                color = "Orange";
+                break;
+            case "UTKAST":
+            case "DRAFT":
+            case "ENTWURF":
+            case "BORRADOR":
+                text = LocalizationService.GetString("Stamp_Draft");
+                color = "Red";
+                break;
+            default:
+                text = stampType ?? "GODKJENT";
+                color = "Green";
+                break;
+        }
+
+        var targets = SelectedFiles.Count > 0
+            ? SelectedFiles.ToList()
+            : (SelectedItem != null ? new List<ImageFileItem> { SelectedItem } : new List<ImageFileItem>());
+
+        if (targets.Count == 0 && PreviewItem != null)
+        {
+            targets.Add(PreviewItem);
+        }
+
+        foreach (var item in targets)
+        {
+            item.ApplyStamp(text, color);
+        }
+
+        if (PreviewItem != null && targets.Contains(PreviewItem))
+        {
+            OnPropertyChanged(nameof(PreviewItem));
+        }
+    }
+
+    [RelayCommand]
+    public void ClearStamp(ImageFileItem? item = null)
+    {
+        var targets = item != null 
+            ? new List<ImageFileItem> { item }
+            : (SelectedFiles.Count > 0 
+                ? SelectedFiles.ToList() 
+                : (SelectedItem != null ? new List<ImageFileItem> { SelectedItem } : new List<ImageFileItem>()));
+
+        if (targets.Count == 0 && PreviewItem != null)
+        {
+            targets.Add(PreviewItem);
+        }
+
+        foreach (var t in targets)
+        {
+            t.ClearStamp();
+        }
+
+        if (PreviewItem != null && targets.Contains(PreviewItem))
+        {
+            OnPropertyChanged(nameof(PreviewItem));
+        }
+    }
+
     private void UpdateStatusSummary()
     {
+        OnPropertyChanged(nameof(ResolvedMergedFileName));
         if (Files.Count == 0)
         {
             StatusSummary = LocalizationService.GetString("NoImagesSelected");
@@ -803,6 +1032,8 @@ public partial class MainViewModel : ObservableObject
             ShowCaptions = ShowCaptions,
             CaptionMode = CaptionMode,
             EnableOcr = EnableOcr,
+            GenerateBookmarks = GenerateBookmarks,
+            GenerateTableOfContents = GenerateTableOfContents,
             DocumentTitle = DocumentTitle,
             DocumentAuthor = DocumentAuthor,
             DocumentSubject = DocumentSubject
@@ -824,8 +1055,9 @@ public partial class MainViewModel : ObservableObject
             ? settings.CustomOutputFolder
             : Files[0].Directory;
 
+        string resolvedMergedName = FilenamePatternHelper.Resolve(settings.MergedFileName, Files.Count, targetFolder);
         string primaryPdfFile = settings.OutputMode == OutputMode.MergedPdf
-            ? Path.Combine(targetFolder, settings.MergedFileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase) ? settings.MergedFileName : $"{settings.MergedFileName}.pdf")
+            ? Path.Combine(targetFolder, resolvedMergedName)
             : Path.Combine(targetFolder, $"{Path.GetFileNameWithoutExtension(Files[0].FilePath)}.pdf");
 
         try

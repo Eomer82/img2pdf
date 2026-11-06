@@ -12,6 +12,20 @@ namespace Img2Pdf.App.Services;
 
 public record ConversionProgressReport(int CurrentIndex, int TotalCount, string CurrentFile, double Percentage);
 
+public enum PdfCompressionProfile
+{
+    Email,      // 150 DPI, 55% JPEG
+    Balanced,   // 200 DPI, 75% JPEG
+    HighQuality // 300 DPI, 85% JPEG
+}
+
+public record PdfCompressionResult(string OutputPath, long OriginalBytes, long CompressedBytes, int PageCount)
+{
+    public double SavingsPercentage => OriginalBytes > 0 
+        ? Math.Max(0.0, (1.0 - (double)CompressedBytes / OriginalBytes) * 100.0) 
+        : 0.0;
+}
+
 public class PdfConversionService
 {
     public static async Task ConvertAsync(
@@ -134,17 +148,14 @@ public class PdfConversionService
 
         Directory.CreateDirectory(targetFolder);
 
-        string fileName = settings.MergedFileName.Trim();
-        if (!fileName.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
-        {
-            fileName += ".pdf";
-        }
+        string fileName = FilenamePatternHelper.Resolve(settings.MergedFileName, items.Count, targetFolder);
         string outputPath = Path.Combine(targetFolder, fileName);
 
         await Task.Run(() =>
         {
             using var document = new PdfDocument();
             var disposables = new List<IDisposable>();
+            var pageMapping = new List<(ImageFileItem Item, int PageNumber)>();
 
             try
             {
@@ -160,8 +171,14 @@ public class PdfConversionService
                         try
                         {
                             AddMultiImagePage(document, chunk, settings, disposables);
+                            int pageIdx = document.Pages.Count - 1;
                             foreach (var item in chunk)
                             {
+                                pageMapping.Add((item, pageIdx + 1));
+                                if (settings.GenerateBookmarks && pageIdx >= 0 && pageIdx < document.Pages.Count)
+                                {
+                                    document.Outlines.Add(item.FileName, document.Pages[pageIdx], true);
+                                }
                                 item.Status = ConversionStatus.Fullført;
                                 item.ErrorMessage = null;
                             }
@@ -190,9 +207,15 @@ public class PdfConversionService
                         {
                             var inputDoc = PdfReader.Open(item.FilePath, PdfDocumentOpenMode.Import);
                             disposables.Add(inputDoc);
+                            int startPage = document.Pages.Count;
                             for (int p = 0; p < inputDoc.Pages.Count; p++)
                             {
                                 document.AddPage(inputDoc.Pages[p]);
+                            }
+                            pageMapping.Add((item, startPage + 1));
+                            if (settings.GenerateBookmarks && startPage < document.Pages.Count)
+                            {
+                                document.Outlines.Add(item.FileName, document.Pages[startPage], true);
                             }
                             item.Status = ConversionStatus.Fullført;
                             item.ErrorMessage = null;
@@ -213,8 +236,14 @@ public class PdfConversionService
                             try
                             {
                                 AddMultiImagePage(document, chunk, settings, disposables);
+                                int pageIdx = document.Pages.Count - 1;
                                 foreach (var ci in chunk)
                                 {
+                                    pageMapping.Add((ci, pageIdx + 1));
+                                    if (settings.GenerateBookmarks && pageIdx >= 0 && pageIdx < document.Pages.Count)
+                                    {
+                                        document.Outlines.Add(ci.FileName, document.Pages[pageIdx], true);
+                                    }
                                     ci.Status = ConversionStatus.Fullført;
                                     ci.ErrorMessage = null;
                                 }
@@ -240,6 +269,11 @@ public class PdfConversionService
 
                 // Flush any remaining images
                 FlushPendingImages();
+
+                if (settings.GenerateTableOfContents && pageMapping.Count > 0)
+                {
+                    GenerateTocPage(document, items, pageMapping);
+                }
 
                 ApplyDecorations(document, settings);
                 ApplyMetadata(document, settings);
@@ -299,6 +333,12 @@ public class PdfConversionService
             {
                 var words = OcrService.RecognizeWordsAsync(item.FilePath).GetAwaiter().GetResult();
                 DrawOcrTextLayer(gfx, words, xImage.PixelWidth, xImage.PixelHeight, drawX, drawY, xImage.PointWidth, xImage.PointHeight);
+            }
+
+            // Stempel / Signatur in 1:1 mode
+            if (item.HasStamp)
+            {
+                DrawStampBadge(gfx, item.StampText!, item.StampColor, drawX + xImage.PointWidth - 96, drawY + 12);
             }
 
             gfx.Restore(state);
@@ -469,6 +509,47 @@ public class PdfConversionService
             double capY = slotY + slotH - 4.0;
             gfx.DrawString(caption, captionFont, captionBrush, capX, capY);
         }
+
+        // Stempel / Signatur
+        if (item.HasStamp)
+        {
+            DrawStampBadge(gfx, item.StampText!, item.StampColor, slotX + slotW - 96, slotY + 12);
+        }
+    }
+
+    private static void DrawStampBadge(XGraphics gfx, string stampText, string colorName, double x, double y)
+    {
+        var stampState = gfx.Save();
+        gfx.RotateAtTransform(-12, new XPoint(x + 44, y + 17));
+
+        XColor mainColor = colorName.ToLowerInvariant() switch
+        {
+            "red" => XColor.FromArgb(215, 204, 28, 28),
+            "blue" => XColor.FromArgb(215, 20, 115, 210),
+            "orange" => XColor.FromArgb(215, 220, 110, 0),
+            _ => XColor.FromArgb(215, 20, 140, 48) // Green
+        };
+
+        var pen = new XPen(mainColor, 2.0);
+        var fontTitle = new XFont("Segoe UI", 9.5, XFontStyleEx.Bold);
+        var fontDate = new XFont("Segoe UI", 7.0, XFontStyleEx.Regular);
+
+        var sizeTitle = gfx.MeasureString(stampText, fontTitle);
+        double w = Math.Max(88.0, sizeTitle.Width + 18.0);
+        double h = 34.0;
+
+        // Double border for authentic rubber stamp feel
+        gfx.DrawRoundedRectangle(pen, x, y, w, h, 4, 4);
+        var innerPen = new XPen(mainColor, 0.75);
+        gfx.DrawRoundedRectangle(innerPen, x + 2.5, y + 2.5, w - 5.0, h - 5.0, 3, 3);
+
+        var brush = new XSolidBrush(mainColor);
+        gfx.DrawString(stampText, fontTitle, brush, x + (w / 2.0), y + 15, XStringFormats.Center);
+
+        string dateStr = DateTime.Now.ToString("yyyy-MM-dd");
+        gfx.DrawString(dateStr, fontDate, brush, x + (w / 2.0), y + 26, XStringFormats.Center);
+
+        gfx.Restore(stampState);
     }
 
     private static void DrawOcrTextLayer(
@@ -738,5 +819,125 @@ public class PdfConversionService
             security.UserPassword = settings.Password;
             security.OwnerPassword = settings.Password;
         }
+    }
+
+    private static void GenerateTocPage(PdfDocument document, IReadOnlyList<ImageFileItem> items, List<(ImageFileItem Item, int PageNumber)> pageMapping)
+    {
+        var tocPage = document.InsertPage(0);
+        tocPage.Size = PageSize.A4;
+        using var gfx = XGraphics.FromPdfPage(tocPage);
+
+        var titleFont = new XFont("Segoe UI", 18, XFontStyleEx.Bold);
+        var subFont = new XFont("Segoe UI", 9.5, XFontStyleEx.Regular);
+        var itemFont = new XFont("Segoe UI", 9.5, XFontStyleEx.Regular);
+        var pageNumFont = new XFont("Segoe UI", 9.5, XFontStyleEx.Bold);
+        var brush = new XSolidBrush(XColor.FromArgb(40, 40, 40));
+        var grayBrush = new XSolidBrush(XColor.FromArgb(120, 120, 120));
+        var dotPen = new XPen(XColor.FromArgb(180, 180, 180), 0.6) { DashStyle = XDashStyle.Dot };
+
+        string tocTitle = LocalizationService.GetString("TableOfContents");
+        gfx.DrawString(tocTitle, titleFont, brush, 40, 50);
+
+        string subtitle = $"{DateTime.Now:yyyy-MM-dd HH:mm} • {items.Count} {LocalizationService.GetString("Col_Status")}";
+        gfx.DrawString(subtitle, subFont, grayBrush, 40, 68);
+        gfx.DrawLine(new XPen(XColor.FromArgb(200, 200, 200), 1), 40, 80, tocPage.Width.Point - 40, 80);
+
+        double y = 105;
+        foreach (var entry in pageMapping)
+        {
+            if (y > tocPage.Height.Point - 50) break;
+
+            string name = entry.Item.FileName;
+            var sizeName = gfx.MeasureString(name, itemFont);
+            gfx.DrawString(name, itemFont, brush, 40, y);
+
+            string pStr = $"{entry.PageNumber + 1}";
+            var sizeP = gfx.MeasureString(pStr, pageNumFont);
+            double rightX = tocPage.Width.Point - 40;
+            gfx.DrawString(pStr, pageNumFont, brush, rightX - sizeP.Width, y);
+
+            double dotStart = 40 + sizeName.Width + 8;
+            double dotEnd = rightX - sizeP.Width - 8;
+            if (dotEnd > dotStart)
+            {
+                gfx.DrawLine(dotPen, dotStart, y - 3, dotEnd, y - 3);
+            }
+
+            y += 20;
+        }
+    }
+
+    public static async Task<PdfCompressionResult> CompressPdfAsync(
+        string pdfPath,
+        string outputPath,
+        PdfCompressionProfile profile = PdfCompressionProfile.Balanced,
+        IProgress<double>? progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        var (targetDpi, jpegQuality) = profile switch
+        {
+            PdfCompressionProfile.Email => (150, 55),
+            PdfCompressionProfile.HighQuality => (300, 85),
+            _ => (200, 75) // Balanced
+        };
+
+        long originalBytes = new FileInfo(pdfPath).Length;
+        var file = await StorageFile.GetFileFromPathAsync(Path.GetFullPath(pdfPath));
+        var pdfDoc = await Windows.Data.Pdf.PdfDocument.LoadFromFileAsync(file);
+        int totalPages = (int)pdfDoc.PageCount;
+
+        string outDir = Path.GetDirectoryName(outputPath) ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(outDir)) Directory.CreateDirectory(outDir);
+
+        using var outDoc = new PdfDocument();
+
+        for (int p = 0; p < totalPages; p++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            using var page = pdfDoc.GetPage((uint)p);
+
+            double scale = targetDpi / 72.0;
+            uint renderW = (uint)Math.Max(100, Math.Round(page.Size.Width * scale));
+            uint renderH = (uint)Math.Max(100, Math.Round(page.Size.Height * scale));
+
+            var renderOptions = new Windows.Data.Pdf.PdfPageRenderOptions
+            {
+                DestinationWidth = renderW,
+                DestinationHeight = renderH
+            };
+
+            using var memStream = new InMemoryRandomAccessStream();
+            await page.RenderToStreamAsync(memStream, renderOptions);
+            memStream.Seek(0);
+
+            byte[] jpegBytes;
+            using (var netStream = memStream.AsStreamForRead())
+            {
+                var decoder = BitmapDecoder.Create(netStream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+                var frame = decoder.Frames[0];
+
+                using var jpegStream = new MemoryStream();
+                var encoder = new JpegBitmapEncoder { QualityLevel = jpegQuality };
+                encoder.Frames.Add(frame);
+                encoder.Save(jpegStream);
+                jpegBytes = jpegStream.ToArray();
+            }
+
+            var outPage = outDoc.AddPage();
+            outPage.Width = XUnit.FromPoint(page.Size.Width);
+            outPage.Height = XUnit.FromPoint(page.Size.Height);
+
+            using var gfx = XGraphics.FromPdfPage(outPage);
+            using var ms = new MemoryStream(jpegBytes);
+            using var xImg = XImage.FromStream(ms);
+            gfx.DrawImage(xImg, 0, 0, outPage.Width.Point, outPage.Height.Point);
+
+            progress?.Report((double)(p + 1) / totalPages * 100.0);
+        }
+
+        outDoc.Save(outputPath);
+        long compressedBytes = new FileInfo(outputPath).Length;
+
+        return new PdfCompressionResult(outputPath, originalBytes, compressedBytes, totalPages);
     }
 }

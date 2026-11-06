@@ -65,14 +65,17 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
             if (Math.Abs(position.X - _dragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
                 Math.Abs(position.Y - _dragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
             {
-                var item = GetItemAtPoint(e.GetPosition(FilesListView)) ?? ViewModel.SelectedItem;
+                var container = ViewModel.IsGridView ? (ItemsControl?)FilesGridView : FilesListView;
+                if (container == null) return;
+
+                var item = GetItemAtPoint(e.GetPosition(container)) ?? ViewModel.SelectedItem;
                 if (item != null)
                 {
                     _isDragging = true;
                     try
                     {
                         var data = new DataObject("Img2PdfItemReorder", item);
-                        DragDrop.DoDragDrop(FilesListView, data, DragDropEffects.Move);
+                        DragDrop.DoDragDrop(container, data, DragDropEffects.Move);
                     }
                     finally
                     {
@@ -111,13 +114,17 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
         {
             if (e.Data.GetData("Img2PdfItemReorder") is ImageFileItem sourceItem)
             {
-                var targetItem = GetItemAtPoint(e.GetPosition(FilesListView));
-                if (targetItem != null && targetItem != sourceItem)
+                var container = ViewModel.IsGridView ? (ItemsControl?)FilesGridView : FilesListView;
+                if (container != null)
                 {
-                    int oldIndex = ViewModel.Files.IndexOf(sourceItem);
-                    int newIndex = ViewModel.Files.IndexOf(targetItem);
-                    ViewModel.MoveItem(oldIndex, newIndex);
-                    ViewModel.SelectedItem = sourceItem;
+                    var targetItem = GetItemAtPoint(e.GetPosition(container));
+                    if (targetItem != null && targetItem != sourceItem)
+                    {
+                        int oldIndex = ViewModel.Files.IndexOf(sourceItem);
+                        int newIndex = ViewModel.Files.IndexOf(targetItem);
+                        ViewModel.MoveItem(oldIndex, newIndex);
+                        ViewModel.SelectedItem = sourceItem;
+                    }
                 }
             }
             e.Handled = true;
@@ -126,13 +133,16 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
 
     private ImageFileItem? GetItemAtPoint(Point point)
     {
-        var hitResult = VisualTreeHelper.HitTest(FilesListView, point);
+        var container = ViewModel.IsGridView ? (ItemsControl?)FilesGridView : FilesListView;
+        if (container == null) return null;
+
+        var hitResult = VisualTreeHelper.HitTest(container, point);
         if (hitResult?.VisualHit == null) return null;
 
         DependencyObject? current = hitResult.VisualHit;
-        while (current != null && current != FilesListView)
+        while (current != null && current != container)
         {
-            if (current is ListViewItem item && item.DataContext is ImageFileItem fileItem)
+            if (current is FrameworkElement elem && elem.DataContext is ImageFileItem fileItem)
             {
                 return fileItem;
             }
@@ -143,9 +153,18 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
 
     private void OnListViewItemDoubleClick(object sender, MouseButtonEventArgs e)
     {
-        if (sender is ListViewItem item && item.DataContext is ImageFileItem fileItem)
+        if (sender is FrameworkElement fe && fe.DataContext is ImageFileItem fileItem)
         {
             ViewModel.OpenPreview(fileItem);
+        }
+    }
+
+    private void OnStampButtonClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement fe && fe.ContextMenu != null)
+        {
+            fe.ContextMenu.PlacementTarget = fe;
+            fe.ContextMenu.IsOpen = true;
         }
     }
 
