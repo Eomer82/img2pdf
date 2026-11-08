@@ -325,6 +325,10 @@ public class LocalizationService : INotifyPropertyChanged
             ["Stamp_Copy"] = "COPY",
             ["Stamp_Draft"] = "DRAFT",
             ["StampMenu"] = "Stamp / Badge",
+            ["EnableGlobalStamp"] = "Apply stamp badge to all pages",
+            ["Caption_FileNameAndDate"] = "File name & timestamp (date/time)",
+            ["Caption_DateOnly"] = "Timestamp only (date/time)",
+            ["Caption_FileNameOnly"] = "File name only",
             ["DynamicNamingHint"] = "Tokens: {Date}, {Time}, {Folder}, {Count}",
             ["DynamicNamingPreview"] = "Preview:",
 
@@ -524,6 +528,10 @@ public class LocalizationService : INotifyPropertyChanged
             ["Stamp_Copy"] = "KOPI",
             ["Stamp_Draft"] = "UTKAST",
             ["StampMenu"] = "Stempel / Signatur",
+            ["EnableGlobalStamp"] = "Sett stempel på alle sider i PDF-en",
+            ["Caption_FileNameAndDate"] = "Filnavn og tidsstempel (dato & klokkeslett)",
+            ["Caption_DateOnly"] = "Kun tidsstempel (dato & klokkeslett)",
+            ["Caption_FileNameOnly"] = "Kun filnavn",
             ["DynamicNamingHint"] = "Bruk koder: {Dato}, {Tid}, {Mappe}, {Antall}",
             ["DynamicNamingPreview"] = "Forhåndsvisning:",
 
@@ -723,6 +731,10 @@ public class LocalizationService : INotifyPropertyChanged
             ["Stamp_Copy"] = "KOPIE",
             ["Stamp_Draft"] = "ENTWURF",
             ["StampMenu"] = "Stempel / Signatur",
+            ["EnableGlobalStamp"] = "Stempel auf alle Seiten anwenden",
+            ["Caption_FileNameAndDate"] = "Dateiname & Zeitstempel (Datum/Uhrzeit)",
+            ["Caption_DateOnly"] = "Nur Zeitstempel (Datum/Uhrzeit)",
+            ["Caption_FileNameOnly"] = "Nur Dateiname",
             ["DynamicNamingHint"] = "Token: {Datum}, {Zeit}, {Ordner}, {Anzahl}",
             ["DynamicNamingPreview"] = "Vorschau:",
 
@@ -922,6 +934,10 @@ public class LocalizationService : INotifyPropertyChanged
             ["Stamp_Copy"] = "COPIA",
             ["Stamp_Draft"] = "BORRADOR",
             ["StampMenu"] = "Sello / Firma",
+            ["EnableGlobalStamp"] = "Aplicar sello en todas las páginas",
+            ["Caption_FileNameAndDate"] = "Nombre de archivo y marca de tiempo",
+            ["Caption_DateOnly"] = "Solo marca de tiempo (fecha y hora)",
+            ["Caption_FileNameOnly"] = "Solo nombre de archivo",
             ["DynamicNamingHint"] = "Tokens: {Fecha}, {Hora}, {Carpeta}, {Contador}",
             ["DynamicNamingPreview"] = "Vista previa:",
 

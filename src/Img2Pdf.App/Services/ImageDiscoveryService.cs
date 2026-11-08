@@ -133,6 +133,19 @@ public class ImageDiscoveryService
                 int exifOrientation = 1;
                 if (frame.Metadata is BitmapMetadata metadata)
                 {
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(metadata.DateTaken) &&
+                            DateTime.TryParse(metadata.DateTaken, out var parsedDate))
+                        {
+                            item.DateTaken = parsedDate;
+                        }
+                    }
+                    catch
+                    {
+                        // Ignore date parsing failure
+                    }
+
                     if (metadata.ContainsQuery("/app1/ifd/{ushort=274}"))
                     {
                         var val = metadata.GetQuery("/app1/ifd/{ushort=274}");

@@ -24,7 +24,7 @@ public partial class ImageFileItem : ObservableObject
     [ObservableProperty]
     private DateTime? _dateTaken;
 
-    public string FormattedDate => (DateTaken ?? FileDate).ToString("yyyy-MM-dd");
+    public string FormattedDate => (DateTaken ?? FileDate).ToString("yyyy-MM-dd HH:mm");
 
     [ObservableProperty]
     private bool _isPdf;

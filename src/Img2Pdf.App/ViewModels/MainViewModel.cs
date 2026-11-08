@@ -339,12 +339,68 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _watermarkText = "DRAFT";
 
-    // Bildetekst / Captions (Filnavn & Dato)
+    // Bildetekst / Captions (Filnavn & Dato / Tidsstempel)
     [ObservableProperty]
     private bool _showCaptions;
 
     [ObservableProperty]
-    private CaptionMode _captionMode = CaptionMode.FileName;
+    [NotifyPropertyChangedFor(nameof(IsCaptionFileNameAndDate))]
+    [NotifyPropertyChangedFor(nameof(IsCaptionDateOnly))]
+    [NotifyPropertyChangedFor(nameof(IsCaptionFileNameOnly))]
+    private CaptionMode _captionMode = CaptionMode.FileNameAndDate;
+
+    public bool IsCaptionFileNameAndDate
+    {
+        get => CaptionMode == CaptionMode.FileNameAndDate;
+        set { if (value) CaptionMode = CaptionMode.FileNameAndDate; }
+    }
+
+    public bool IsCaptionDateOnly
+    {
+        get => CaptionMode == CaptionMode.DateTaken;
+        set { if (value) CaptionMode = CaptionMode.DateTaken; }
+    }
+
+    public bool IsCaptionFileNameOnly
+    {
+        get => CaptionMode == CaptionMode.FileName;
+        set { if (value) CaptionMode = CaptionMode.FileName; }
+    }
+
+    // Globalt stempel i høyrepanel (Stempler alle sider ved konvertering)
+    [ObservableProperty]
+    private bool _enableGlobalStamp;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsGlobalStampApproved))]
+    [NotifyPropertyChangedFor(nameof(IsGlobalStampPaid))]
+    [NotifyPropertyChangedFor(nameof(IsGlobalStampCopy))]
+    [NotifyPropertyChangedFor(nameof(IsGlobalStampDraft))]
+    private string _globalStampType = "GODKJENT";
+
+    public bool IsGlobalStampApproved
+    {
+        get => GlobalStampType == "GODKJENT";
+        set { if (value) GlobalStampType = "GODKJENT"; }
+    }
+
+    public bool IsGlobalStampPaid
+    {
+        get => GlobalStampType == "BETALT";
+        set { if (value) GlobalStampType = "BETALT"; }
+    }
+
+    public bool IsGlobalStampCopy
+    {
+        get => GlobalStampType == "KOPI";
+        set { if (value) GlobalStampType = "KOPI"; }
+    }
+
+    public bool IsGlobalStampDraft
+    {
+        get => GlobalStampType == "UTKAST";
+        set { if (value) GlobalStampType = "UTKAST"; }
+    }
 
     // Søkbar PDF (Windows OCR)
     [ObservableProperty]
@@ -1009,6 +1065,14 @@ public partial class MainViewModel : ObservableObject
         ProgressValue = 0;
         _cts = new CancellationTokenSource();
 
+        var (globalStampText, globalStampColor) = GlobalStampType switch
+        {
+            "BETALT" => (LocalizationService.GetString("Stamp_Paid"), "Blue"),
+            "KOPI" => (LocalizationService.GetString("Stamp_Copy"), "Orange"),
+            "UTKAST" => (LocalizationService.GetString("Stamp_Draft"), "Red"),
+            _ => (LocalizationService.GetString("Stamp_Approved"), "Green")
+        };
+
         var settings = new ConversionSettings
         {
             OutputMode = OutputMode,
@@ -1031,6 +1095,9 @@ public partial class MainViewModel : ObservableObject
             WatermarkText = WatermarkText,
             ShowCaptions = ShowCaptions,
             CaptionMode = CaptionMode,
+            EnableStamp = EnableGlobalStamp,
+            StampText = globalStampText,
+            StampColor = globalStampColor,
             EnableOcr = EnableOcr,
             GenerateBookmarks = GenerateBookmarks,
             GenerateTableOfContents = GenerateTableOfContents,

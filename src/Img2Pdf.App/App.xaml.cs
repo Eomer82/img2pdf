@@ -11,6 +11,8 @@ public partial class App : Application
 
     public App()
     {
+        WindowsFontResolver.EnsureRegistered();
+
         AppDomain.CurrentDomain.UnhandledException += (s, e) =>
         {
             LogCrash(e.ExceptionObject as Exception);

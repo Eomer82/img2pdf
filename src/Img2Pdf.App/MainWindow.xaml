@@ -697,13 +697,43 @@
                         </StackPanel>
                     </ui:Card>
 
-                    <!-- Kort: Bildetekst -->
+                    <!-- Kort: Bildetekst, Tidsstempel & Stempel -->
                     <ui:Card Margin="0,0,0,12">
                         <StackPanel>
                             <TextBlock Text="{loc:Translate Card_Captions}" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
                             <CheckBox Content="{loc:Translate ShowCaptions}"
                                       IsChecked="{Binding ShowCaptions, Mode=TwoWay}"
                                       Margin="0,0,0,4" />
+                            <StackPanel Margin="24,2,0,8" Visibility="{Binding ShowCaptions, Converter={StaticResource BoolToVis}}">
+                                <RadioButton Content="{loc:Translate Caption_FileNameAndDate}"
+                                             IsChecked="{Binding IsCaptionFileNameAndDate, Mode=TwoWay}"
+                                             Margin="0,0,0,4" FontSize="12" />
+                                <RadioButton Content="{loc:Translate Caption_DateOnly}"
+                                             IsChecked="{Binding IsCaptionDateOnly, Mode=TwoWay}"
+                                             Margin="0,0,0,4" FontSize="12" />
+                                <RadioButton Content="{loc:Translate Caption_FileNameOnly}"
+                                             IsChecked="{Binding IsCaptionFileNameOnly, Mode=TwoWay}"
+                                             Margin="0,0,0,4" FontSize="12" />
+                            </StackPanel>
+
+                            <!-- Globalt stempel på alle sider -->
+                            <CheckBox Content="{loc:Translate EnableGlobalStamp}"
+                                      IsChecked="{Binding EnableGlobalStamp, Mode=TwoWay}"
+                                      Margin="0,4,0,4" />
+                            <StackPanel Margin="24,2,0,2" Visibility="{Binding EnableGlobalStamp, Converter={StaticResource BoolToVis}}">
+                                <RadioButton Content="{loc:Translate Stamp_Approved}"
+                                             IsChecked="{Binding IsGlobalStampApproved, Mode=TwoWay}"
+                                             Margin="0,0,0,4" FontSize="12" />
+                                <RadioButton Content="{loc:Translate Stamp_Paid}"
+                                             IsChecked="{Binding IsGlobalStampPaid, Mode=TwoWay}"
+                                             Margin="0,0,0,4" FontSize="12" />
+                                <RadioButton Content="{loc:Translate Stamp_Copy}"
+                                             IsChecked="{Binding IsGlobalStampCopy, Mode=TwoWay}"
+                                             Margin="0,0,0,4" FontSize="12" />
+                                <RadioButton Content="{loc:Translate Stamp_Draft}"
+                                             IsChecked="{Binding IsGlobalStampDraft, Mode=TwoWay}"
+                                             Margin="0,0,0,2" FontSize="12" />
+                            </StackPanel>
                         </StackPanel>
                     </ui:Card>
 

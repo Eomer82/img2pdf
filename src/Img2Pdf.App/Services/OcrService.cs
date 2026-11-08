@@ -45,7 +45,27 @@ public static class OcrService
             var file = await StorageFile.GetFileFromPathAsync(Path.GetFullPath(imagePath));
             using var stream = await file.OpenAsync(FileAccessMode.Read);
             var decoder = await BitmapDecoder.CreateAsync(stream);
-            var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+
+            uint origW = decoder.OrientedPixelWidth;
+            uint origH = decoder.OrientedPixelHeight;
+            uint maxDim = OcrEngine.MaxImageDimension;
+
+            var transform = new BitmapTransform();
+            double scaleBack = 1.0;
+            if (origW > maxDim || origH > maxDim)
+            {
+                double ratio = (double)maxDim / Math.Max(origW, origH);
+                transform.ScaledWidth = (uint)Math.Max(1, Math.Round(origW * ratio));
+                transform.ScaledHeight = (uint)Math.Max(1, Math.Round(origH * ratio));
+                scaleBack = 1.0 / ratio;
+            }
+
+            using var softwareBitmap = await decoder.GetSoftwareBitmapAsync(
+                BitmapPixelFormat.Bgra8,
+                BitmapAlphaMode.Premultiplied,
+                transform,
+                ExifOrientationMode.RespectExifOrientation,
+                ColorManagementMode.DoNotColorManage);
 
             var result = await engine.RecognizeAsync(softwareBitmap);
             if (result?.Lines != null)
@@ -56,10 +76,10 @@ public static class OcrService
                     {
                         words.Add(new OcrWordBox(
                             word.Text,
-                            word.BoundingRect.X,
-                            word.BoundingRect.Y,
-                            word.BoundingRect.Width,
-                            word.BoundingRect.Height
+                            word.BoundingRect.X * scaleBack,
+                            word.BoundingRect.Y * scaleBack,
+                            word.BoundingRect.Width * scaleBack,
+                            word.BoundingRect.Height * scaleBack
                         ));
                     }
                 }

@@ -80,7 +80,12 @@ public class ConversionSettings
 
     // Captions (Filnavn & Dato)
     public bool ShowCaptions { get; set; } = false;
-    public CaptionMode CaptionMode { get; set; } = CaptionMode.FileName;
+    public CaptionMode CaptionMode { get; set; } = CaptionMode.FileNameAndDate;
+
+    // Global Stamp (Stempel på alle sider fra høyrepanel)
+    public bool EnableStamp { get; set; } = false;
+    public string StampText { get; set; } = "GODKJENT";
+    public string StampColor { get; set; } = "Green";
 
     // Searchable PDF (Windows OCR)
     public bool EnableOcr { get; set; } = false;
